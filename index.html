@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>daysSince</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0b0d12;
+      --fg: #e9edf1;
+      --muted: #9aa4af;
+      --card: #121725;
+      --border: #25304a;
+      --accent: #7aa2ff;
+      --good: #3ddc97;
+      --warn: #ffcc66;
+      --bad: #ff6b6b;
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--fg);
+    }
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    h1 { margin: 0 0 8px; font-size: 22px; }
+    p { margin: 0 0 16px; color: var(--muted); }
+
+    .card {
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--card) 86%, black);
+      color: var(--fg);
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 720px) {
+      .grid { grid-template-columns: 2fr 1fr 1fr; }
+    }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--accent) 22%, var(--card));
+      color: var(--fg);
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.05); }
+
+    .big {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 6px 0 8px;
+    }
+    .sub { color: var(--muted); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .pill.good { border-color: color-mix(in srgb, var(--good) 45%, var(--border)); color: color-mix(in srgb, var(--good) 70%, var(--fg)); }
+    .pill.warn { border-color: color-mix(in srgb, var(--warn) 45%, var(--border)); color: color-mix(in srgb, var(--warn) 80%, var(--fg)); }
+    .pill.bad  { border-color: color-mix(in srgb, var(--bad) 45%, var(--border));  color: color-mix(in srgb, var(--bad) 85%, var(--fg)); }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--card) 80%, black);
+    }
+
+    ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>daysSince</h1>
+    <p>Calculate days since a date (DD/MM, DD/MM/YY, DD/MM/YYYY) + optional medication supply maths.</p>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label for="date">Date</label>
+          <input id="date" inputmode="numeric" placeholder="e.g. 25/06 or 25/06/25 or 25/06/2025" />
+        </div>
+        <div>
+          <label for="amount">Amount of tablets (optional)</label>
+          <input id="amount" inputmode="decimal" placeholder="e.g. 30" />
+        </div>
+        <div>
+          <label for="perDay">Tablets per day (optional)</label>
+          <input id="perDay" inputmode="decimal" placeholder="e.g. 1" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 12px;">
+        <button id="calc">Calculate</button>
+        <button id="copy">Copy link</button>
+        <span class="sub" id="status"></span>
+      </div>
+    </div>
+
+    <div class="card" id="out" style="display:none;">
+      <div class="row" style="justify-content: space-between; gap: 12px;">
+        <div>
+          <div class="big" id="days">—</div>
+          <div class="sub" id="parsed">—</div>
+        </div>
+        <div class="row">
+          <span class="pill" id="flag">—</span>
+        </div>
+      </div>
+
+      <div id="med" style="margin-top: 12px; display:none;">
+        <div class="sub" style="margin-bottom: 6px;">Medication estimate</div>
+        <div class="row">
+          <span class="pill" id="supply">—</span>
+          <span class="pill" id="due">—</span>
+        </div>
+        <ul id="medDetails"></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sub" style="margin-bottom: 6px;">Search engine shortcut usage</div>
+      <ul>
+        <li>Query param: <code>?s=25/06</code> or <code>?s=25/06/2025</code></li>
+        <li>With tablets: <code>?s=25/06 30 1</code> (date, amount, per-day)</li>
+        <li>Also supports: <code>?date=...</code>, <code>?amount=...</code>, <code>?perDay=...</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    function startOfDay(d) {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function daysBetween(a, b) {
+      // b - a in whole days
+      const ms = startOfDay(b).getTime() - startOfDay(a).getTime();
+      return Math.floor(ms / 86400000);
+    }
+
+    function parseFlexibleDate(raw) {
+      // Accept DD/MM, DD/MM/YY, DD/MM/YYYY
+      const s = (raw || '').trim();
+      const m = s.match(/^\s*(\d{1,2})\s*[\/\-\. ]\s*(\d{1,2})(?:\s*[\/\-\. ]\s*(\d{2,4}))?\s*$/);
+      if (!m) return { ok: false, error: 'Enter date as DD/MM, DD/MM/YY, or DD/MM/YYYY.' };
+
+      const dd = Number(m[1]);
+      const mm = Number(m[2]);
+      const yyRaw = m[3];
+
+      if (!(dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12)) {
+        return { ok: false, error: 'Invalid day/month.' };
+      }
+
+      const today = startOfDay(new Date());
+      const currentYear = today.getFullYear();
+
+      let year;
+      let inferred = false;
+
+      if (!yyRaw) {
+        // No year provided: pick the most recent occurrence.
+        year = currentYear;
+        inferred = true;
+        const candidate = new Date(year, mm - 1, dd);
+        if (candidate.getMonth() !== (mm - 1) || candidate.getDate() !== dd) {
+          return { ok: false, error: 'That date does not exist.' };
+        }
+        if (startOfDay(candidate).getTime() > today.getTime()) {
+          year = currentYear - 1;
+        }
+      } else {
+        const yNum = Number(yyRaw);
+        if (yyRaw.length === 2) {
+          // Interpret 2-digit years as 2000-2099.
+          // (If you ever need 19xx, we can add a toggle.)
+          year = 2000 + yNum;
+        } else {
+          year = yNum;
+        }
+      }
+
+      const date = new Date(year, mm - 1, dd);
+      if (date.getMonth() !== (mm - 1) || date.getDate() !== dd) {
+        return { ok: false, error: 'That date does not exist.' };
+      }
+
+      return {
+        ok: true,
+        date,
+        inferred,
+        input: s,
+      };
+    }
+
+    function parseNumber(raw) {
+      if (raw == null) return null;
+      const s = String(raw).trim();
+      if (!s) return null;
+      const n = Number(s.replace(',', '.'));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function pickStatus(days) {
+      if (days < 0) return { cls: 'bad', text: 'In the future (check date)' };
+      if (days === 0) return { cls: 'warn', text: 'Today' };
+      if (days <= 7) return { cls: 'good', text: 'Recent' };
+      if (days <= 30) return { cls: 'warn', text: 'A while ago' };
+      return { cls: 'bad', text: 'Long ago' };
+    }
+
+    function setPill(el, cls, text) {
+      el.className = 'pill' + (cls ? ' ' + cls : '');
+      el.textContent = text;
+    }
+
+    function formatDate(d) {
+      return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+    }
+
+    function compute() {
+      const dateRaw = document.querySelector('#date').value;
+      const amountRaw = document.querySelector('#amount').value;
+      const perDayRaw = document.querySelector('#perDay').value;
+
+      const p = parseFlexibleDate(dateRaw);
+      const statusEl = document.querySelector('#status');
+
+      if (!p.ok) {
+        statusEl.textContent = p.error;
+        document.querySelector('#out').style.display = 'none';
+        return;
+      }
+
+      const today = startOfDay(new Date());
+      const d = startOfDay(p.date);
+      const days = daysBetween(d, today);
+
+      document.querySelector('#out').style.display = '';
+      document.querySelector('#days').textContent = `${days} day${Math.abs(days) === 1 ? '' : 's'}`;
+
+      const inferredNote = p.inferred ? ' (year inferred)' : '';
+      document.querySelector('#parsed').textContent = `Parsed as ${formatDate(d)}${inferredNote}`;
+
+      const st = pickStatus(days);
+      setPill(document.querySelector('#flag'), st.cls, st.text);
+
+      // Medication section
+      const amount = parseNumber(amountRaw);
+      const perDay = parseNumber(perDayRaw);
+
+      const medBox = document.querySelector('#med');
+      const details = document.querySelector('#medDetails');
+      details.innerHTML = '';
+
+      if (amount != null && perDay != null && perDay > 0) {
+        medBox.style.display = '';
+
+        const daysSupply = amount / perDay;
+        const coveredDays = Math.floor(daysSupply);
+        const dueDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + coveredDays);
+        const daysUntilDue = daysBetween(today, dueDate);
+
+        setPill(document.querySelector('#supply'), 'good', `~${daysSupply.toFixed(daysSupply < 10 ? 1 : 0)} days supply`);
+
+        let dueCls = 'good';
+        let dueText = '';
+        if (daysUntilDue > 0) {
+          dueCls = 'good';
+          dueText = `Not due yet (${daysUntilDue}d remaining)`;
+        } else if (daysUntilDue === 0) {
+          dueCls = 'warn';
+          dueText = 'Due today (by this estimate)';
+        } else {
+          dueCls = 'bad';
+          dueText = `Overdue by ${Math.abs(daysUntilDue)}d (by this estimate)`;
+        }
+        setPill(document.querySelector('#due'), dueCls, dueText);
+
+        const li1 = document.createElement('li');
+        li1.textContent = `Start date: ${formatDate(d)}`;
+        const li2 = document.createElement('li');
+        li2.textContent = `Amount: ${amount} tablets`;
+        const li3 = document.createElement('li');
+        li3.textContent = `Rate: ${perDay} tablets/day`;
+        const li4 = document.createElement('li');
+        li4.textContent = `Estimated run-out date: ${formatDate(startOfDay(dueDate))}`;
+        details.append(li1, li2, li3, li4);
+      } else {
+        medBox.style.display = 'none';
+      }
+
+      statusEl.textContent = '';
+    }
+
+    function fillFromQuery() {
+      const params = new URLSearchParams(location.search);
+
+      // Support search-engine style: ?s=<stuff>
+      const s = params.get('s') || params.get('q') || '';
+
+      if (s) {
+        // tokenise: date [amount] [perDay]
+        const parts = decodeURIComponent(s).trim().split(/\s+/);
+        if (parts[0]) document.querySelector('#date').value = parts[0];
+        if (parts[1]) document.querySelector('#amount').value = parts[1];
+        if (parts[2]) document.querySelector('#perDay').value = parts[2];
+      }
+
+      const date = params.get('date');
+      const amount = params.get('amount');
+      const perDay = params.get('perDay');
+      if (date) document.querySelector('#date').value = date;
+      if (amount) document.querySelector('#amount').value = amount;
+      if (perDay) document.querySelector('#perDay').value = perDay;
+
+      if (document.querySelector('#date').value.trim()) {
+        compute();
+      }
+    }
+
+    function buildShareUrl() {
+      const date = document.querySelector('#date').value.trim();
+      const amount = document.querySelector('#amount').value.trim();
+      const perDay = document.querySelector('#perDay').value.trim();
+
+      const tokens = [date, amount, perDay].filter(Boolean).join(' ');
+      const url = new URL(location.href);
+      url.search = '';
+      if (tokens) url.searchParams.set('s', tokens);
+      return url.toString();
+    }
+
+    document.querySelector('#calc').addEventListener('click', compute);
+    document.querySelector('#copy').addEventListener('click', async () => {
+      const url = buildShareUrl();
+      try {
+        await navigator.clipboard.writeText(url);
+        document.querySelector('#status').textContent = 'Copied link.';
+      } catch {
+        document.querySelector('#status').textContent = url;
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') compute();
+    });
+
+    fillFromQuery();
+  </script>
+</body>
+</html>
