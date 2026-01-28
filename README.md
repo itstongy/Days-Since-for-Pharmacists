@@ -1,6 +1,8 @@
-# daysSince
+# Days Since (for Pharmacists)
 
-Tiny static webpage to calculate **days since** a date (and optional medication supply estimate).
+Tiny static webpage to calculate **days since** a date and (optionally) estimate **days of medication supply remaining**.
+
+Built for quick “too early vs due” checks: enter the last supply date + quantity + tablets/day.
 
 ## Inputs
 - Date formats:
@@ -14,7 +16,9 @@ If you provide `DD/MM` with no year, it will pick the **most recent occurrence**
 ## Search-engine shortcut ("%s" style)
 Use query param `s`:
 - `?s=25/06`
-- `?s=25/06 30 1` (date, amount, tablets-per-day)
+- `?s=25/06 30 1` (date, amount, tablets, tablets-per-day)
+
+This makes it ideal for a browser keyword/search shortcut (paste the URL template with `%s`).
 
 Also supports explicit params:
 - `?date=25/06/2025&amount=30&perDay=1`
