@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --fg: #0f172a;
+    --muted: #475569;
+    --card: rgba(255, 255, 255, 0.86);
+    --card-border: rgba(148, 163, 184, 0.18);
+    --card-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+    --accent: #2563eb;
+    --accent-2: #0ea5e9;
+    --good: #16a34a;
+    --warn: #f59e0b;
+    --bad: #ef4444;
+  }
+
+  html.dark {
+    color-scheme: dark;
+    --bg: #0b1020;
+    --fg: #e2e8f0;
+    --muted: #94a3b8;
+    --card: rgba(15, 23, 42, 0.82);
+    --card-border: rgba(148, 163, 184, 0.2);
+    --card-shadow: 0 18px 45px rgba(2, 6, 23, 0.55);
+    --accent: #38bdf8;
+    --accent-2: #60a5fa;
+    --good: #22c55e;
+    --warn: #fbbf24;
+    --bad: #f87171;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    background: radial-gradient(circle at top, rgba(37, 99, 235, 0.08), transparent 55%),
+      radial-gradient(circle at 25% 30%, rgba(14, 165, 233, 0.12), transparent 50%),
+      var(--bg);
+    color: var(--fg);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image: url('./assets/emoji-bg.svg');
+    background-repeat: repeat;
+    opacity: 0.1;
+    filter: blur(1.6px);
+  }
+
+  html.dark body::before {
+    opacity: 0.06;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    @apply rounded-2xl p-6 backdrop-blur;
+  }
+
+  .card-spotlight {
+    @apply relative overflow-hidden;
+  }
+
+  .card-spotlight::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 55%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .label {
+    @apply text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-slate-200 bg-white/70 px-3 py-2 text-sm shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200/70 dark:border-slate-700 dark:bg-slate-950/60 dark:focus:border-sky-400 dark:focus:ring-sky-400/20;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400/50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-200/60 dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-200 dark:hover:border-slate-500;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+
+  .pill-good {
+    background: color-mix(in srgb, var(--good) 20%, transparent);
+    color: var(--good);
+  }
+
+  .pill-warn {
+    background: color-mix(in srgb, var(--warn) 20%, transparent);
+    color: var(--warn);
+  }
+
+  .pill-bad {
+    background: color-mix(in srgb, var(--bad) 20%, transparent);
+    color: var(--bad);
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+
+  .divider {
+    @apply h-px w-full bg-slate-200/70 dark:bg-slate-700/60;
+  }
+}
+
+@layer utilities {
+  .grid-spot {
+    background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.07) 1px, transparent 0);
+    background-size: 18px 18px;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .reveal {
+    animation: rise 0.5s ease both;
+  }
+
+  .reveal-delay-1 {
+    animation-delay: 0.06s;
+  }
+
+  .reveal-delay-2 {
+    animation-delay: 0.12s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal-delay-1,
+    .reveal-delay-2 {
+      animation: none;
+    }
+  }
+}

@@ -1,1260 +1,203 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Days Since for pharmacists</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20x%3D%2710%27%20y%3D%2722%27%20width%3D%2744%27%20height%3D%2720%27%20rx%3D%2710%27%20fill%3D%27%231e293b%27%20stroke%3D%27%23e2e8f0%27%20stroke-width%3D%272%27/%3E%3Cline%20x1%3D%2732%27%20y1%3D%2722%27%20x2%3D%2732%27%20y2%3D%2742%27%20stroke%3D%27%23e2e8f0%27%20stroke-width%3D%272%27/%3E%3C/svg%3E" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    :root {
-      color-scheme: light;
-      --bg: #f7f8fb;
-      --fg: #0f172a;
-      --muted: #475569;
-      --card: #ffffff;
-      --border: #e5e7eb;
-      --shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-      --accent: #2563eb;
-      --accent2: #0ea5e9;
-      --good: #16a34a;
-      --warn: #f59e0b;
-      --bad: #ef4444;
-      --barbg: #eef2ff;
-      --input: #ffffff;
-      --chip: #ffffff;
-      --callout: #eff6ff;
-      --callout-border: #dbeafe;
-      --pastel-days-bg: linear-gradient(180deg, #eef2ff, #ffffff 75%);
-      --pastel-days-border: #dbe3ff;
-      --pastel-med-bg: linear-gradient(180deg, #ecfdf5, #ffffff 75%);
-      --pastel-med-border: #c7f0dc;
-      --pastel-gauge-bg: linear-gradient(180deg, #f5f3ff, #ffffff 75%);
-      --pastel-gauge-border: #e7ddff;
-
-      --timeline-dot: #0f172a;
-      --timeline-dot-stroke: #ffffff;
-      --timeline-base: #cbd5e1;
-      --timeline-neutral: #94a3b8;
-    }
-
-    .theme-dark {
-      color-scheme: dark;
-      --bg: #0b1220;
-      --fg: #e2e8f0;
-      --muted: #94a3b8;
-      --card: #0f172a;
-      --border: #1f2937;
-      --shadow: 0 10px 25px rgba(2, 6, 23, 0.4);
-      --accent: #38bdf8;
-      --accent2: #60a5fa;
-      --good: #22c55e;
-      --warn: #fbbf24;
-      --bad: #f87171;
-      --barbg: #0b162a;
-      --input: #0b1220;
-      --chip: #0b1220;
-      --callout: #0b162a;
-      --callout-border: #1f2a44;
-      --pastel-days-bg: linear-gradient(180deg, #0f1b35, #0f172a 75%);
-      --pastel-days-border: #1f3b6f;
-      --pastel-med-bg: linear-gradient(180deg, #0e2a22, #0f172a 75%);
-      --pastel-med-border: #1f5f4f;
-      --pastel-gauge-bg: linear-gradient(180deg, #1a1333, #0f172a 75%);
-      --pastel-gauge-border: #3a2a6b;
-
-      --timeline-dot: #e2e8f0;
-      --timeline-dot-stroke: #0f172a;
-      --timeline-base: #334155;
-      --timeline-neutral: #64748b;
-    }
-
-    body {
-      margin: 0;
-      font-family: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      position: relative;
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
-    /* Very subtle pharmacy-ish emoji background */
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.085;
-      z-index: -1;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Ctext x='18' y='62' font-size='28'%3E%F0%9F%92%8A%3C/text%3E%3Ctext x='112' y='98' font-size='26'%3E%F0%9F%92%89%3C/text%3E%3Ctext x='230' y='64' font-size='26'%3E%F0%9F%A9%BA%3C/text%3E%3Ctext x='40' y='170' font-size='26'%3E%F0%9F%A9%BA%3C/text%3E%3Ctext x='190' y='168' font-size='26'%3E%F0%9F%A7%BE%3C/text%3E%3Ctext x='250' y='210' font-size='26'%3E%F0%9F%93%84%3C/text%3E%3Ctext x='90' y='260' font-size='26'%3E%F0%9F%92%8A%3C/text%3E%3Ctext x='20' y='300' font-size='24'%3E%F0%9F%94%AC%3C/text%3E%3Ctext x='220' y='302' font-size='24'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E");
-      background-repeat: repeat;
-      filter: blur(1.2px);
-    }
-
-    .theme-dark body::before { opacity: 0.055; }
-
-
-    .wrap {
-      position: relative;
-      z-index: 0;
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 28px 16px 64px;
-    }
-
-    /* On very wide screens, use a bit more horizontal space */
-    @media (min-width: 1400px) {
-      .wrap { max-width: 1360px; }
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 22px;
-      letter-spacing: -0.01em;
-    }
-
-    h2 {
-      margin: 0 0 6px;
-      font-size: 16px;
-      letter-spacing: -0.01em;
-    }
-
-    p {
-      margin: 0 0 16px;
-      color: var(--muted);
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 16px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--card);
-      box-shadow: var(--shadow);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--barbg);
-      color: var(--accent);
-      flex: 0 0 auto;
-    }
-
-    .brand-title {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      margin: 0;
-    }
-
-    .brand-subtitle {
-      margin: 2px 0 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .lede {
-      margin: 16px 0 18px;
-      font-size: 14px;
-      max-width: 640px;
-      color: var(--muted);
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin: 16px 0;
-      box-shadow: var(--shadow);
-    }
-
-    /* Pastel card accents */
-    .card-days {
-      background: var(--pastel-days-bg);
-      border-color: var(--pastel-days-border);
-    }
-    .card-med {
-      background: var(--pastel-med-bg);
-      border-color: var(--pastel-med-border);
-    }
-    .card-gauge {
-      background: var(--pastel-gauge-bg);
-      border-color: var(--pastel-gauge-border);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 12px;
-    }
-
-    @media (min-width: 780px) {
-      .grid { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); }
-      .grid.results { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-
-    .grid > * { min-width: 0; }
-
-    label {
-      display: block;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 6px;
-      overflow-wrap: anywhere;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--input);
-      color: var(--fg);
-      outline: none;
-      min-width: 0;
-      transition: border-color 140ms ease, box-shadow 140ms ease;
-    }
-
-    input:focus {
-      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
-    }
-
-    .theme-dark input::placeholder { color: #64748b; }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      max-width: 100%;
-      min-width: 0;
-    }
-
-    textarea:focus {
-      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
-      outline: none;
-    }
-
-    button {
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 14%, var(--chip)), var(--chip));
-      color: var(--fg);
-      cursor: pointer;
-      transition: border-color 140ms ease, box-shadow 140ms ease, transform 120ms ease;
-    }
-
-    button:hover { filter: brightness(0.99); }
-
-    button:active { transform: translateY(0.5px); }
-
-    button:focus-visible,
-    summary:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--accent) 55%, var(--border));
-      outline-offset: 2px;
-    }
-
-    textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--fg);
-      min-width: 0;
-      transition: border-color 140ms ease, box-shadow 140ms ease;
-    }
-
-    .theme-toggle {
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      background: var(--chip);
-      white-space: nowrap;
-    }
-
-    /* Small quick-fill buttons */
-    .chip {
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      background: var(--chip);
-      white-space: nowrap;
-    }
-
-    .statusline {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .center {
-      text-align: center;
-    }
-
-    .big {
-      font-size: 44px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin: 6px 0 4px;
-    }
-
-    .sub {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 13px;
-      background: var(--chip);
-      max-width: 100%;
-    }
-
-    .pill.good { border-color: color-mix(in srgb, var(--good) 40%, var(--border)); color: color-mix(in srgb, var(--good) 80%, #000); }
-    .pill.warn { border-color: color-mix(in srgb, var(--warn) 45%, var(--border)); color: color-mix(in srgb, var(--warn) 90%, #000); }
-    .pill.bad  { border-color: color-mix(in srgb, var(--bad) 45%, var(--border));  color: color-mix(in srgb, var(--bad) 90%, #000); }
-
-    .callout {
-      border: 1px solid var(--callout-border);
-      background: var(--callout);
-      border-radius: 12px;
-      padding: 12px;
-    }
-
-    .callout-title {
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .steps {
-      margin: 0 0 8px 18px;
-      color: var(--fg);
-    }
-
-    .steps li { margin-bottom: 4px; }
-
-    .quick-use {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px dashed #cbd5e1;
-      background: var(--card);
-    }
-
-    details {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 10px 12px;
-      background: var(--card);
-    }
-
-    details + details { margin-top: 12px; }
-
-    summary {
-      list-style: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 10px;
-      margin: -2px -4px;
-      border-radius: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      cursor: pointer;
-      transition: background 140ms ease, color 140ms ease;
-    }
-
-    summary:hover { background: color-mix(in srgb, var(--accent) 8%, var(--card)); color: var(--fg); }
-
-    summary::-webkit-details-marker { display: none; }
-
-    summary::after {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-right: 2px solid var(--muted);
-      border-bottom: 2px solid var(--muted);
-      transform: rotate(-45deg);
-      transition: transform 160ms ease, border-color 160ms ease;
-    }
-
-    details[open] summary::after { transform: rotate(45deg); border-color: var(--fg); }
-
-    details[open] summary { color: var(--fg); }
-
-    .bar {
-      width: 100%;
-      height: 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--barbg);
-      overflow: hidden;
-    }
-
-    .bar > div {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      border-radius: 999px;
-      transition: width 180ms ease;
-    }
-
-    code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--chip);
-    }
-
-    ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
-    li { margin: 6px 0; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-icon" aria-hidden="true">
-          <svg viewBox="0 0 48 48" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="9" y="18" width="30" height="12" rx="6"></rect>
-            <line x1="24" y1="18" x2="24" y2="30"></line>
-          </svg>
-        </span>
-        <div>
-          <h1 class="brand-title">Days Since</h1>
-          <p class="brand-subtitle">for pharmacists</p>
-        </div>
-      </div>
-      <div class="row" style="justify-content: flex-end; gap: 8px;">
-        <button id="reset" type="button" class="theme-toggle" title="Clear inputs">Reset</button>
-        <button id="themeToggle" type="button" class="theme-toggle" aria-pressed="false">Dark mode</button>
-      </div>
-    </header>
-
-    <p class="lede">Fast “days since” + optional supply calculation.</p>
-
-    <div class="card">
-      <div class="grid">
-        <div>
-          <label for="date">Date</label>
-          <input id="date" inputmode="numeric" placeholder="e.g. 25/06 or 2506 or 250625" />
-        </div>
-        <div>
-          <label for="amount">Amount of tablets (optional)</label>
-          <input id="amount" inputmode="decimal" placeholder="e.g. 30" />
-          <div class="row" style="margin-top: 8px;">
-            <button class="chip" type="button" data-set="amount" data-val="28">28</button>
-            <button class="chip" type="button" data-set="amount" data-val="30">30</button>
-            <button class="chip" type="button" data-set="amount" data-val="60">60</button>
-            <button class="chip" type="button" data-set="amount" data-val="56">56</button>
-            <button class="chip" type="button" data-set="amount" data-val="84">84</button>
-          </div>
-        </div>
-        <div>
-          <label for="perDay">Tablets per day (optional)</label>
-          <input id="perDay" inputmode="decimal" placeholder="e.g. 1" />
-          <div class="row" style="margin-top: 8px;">
-            <button class="chip" type="button" data-set="perDay" data-val="0.5">0.5</button>
-            <button class="chip" type="button" data-set="perDay" data-val="1">1</button>
-            <button class="chip" type="button" data-set="perDay" data-val="2">2</button>
-            <button class="chip" type="button" data-set="perDay" data-val="3">3</button>
-            <button class="chip" type="button" data-set="perDay" data-val="4">4</button>
-            <button class="chip" type="button" data-set="perDay" data-val="5">5</button>
-            <button class="chip" type="button" data-set="perDay" data-val="6">6</button>
-            <button class="chip" type="button" data-set="perDay" data-val="7">7</button>
-            <button class="chip" type="button" data-set="perDay" data-val="8">8</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top: 10px;">
-        <div style="flex: 1 1 320px;">
-          <label for="buffer">Amount of days allowed early</label>
-          <div class="row" style="gap: 10px; align-items: baseline;">
-            <input id="buffer" inputmode="numeric" placeholder="9" style="max-width: 140px;" />
-            <span class="sub">Default: 9 (inline with 21‑day safety net)</span>
-          </div>
-          <div class="sub" style="margin-top:6px;">✅ if due within buffer (or overdue). ❌ if too early.</div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top: 12px;">
-        <button id="calc">Calculate</button>
-        <button id="copy">Copy link</button>
-        <span class="statusline" id="status"></span>
-      </div>
-    </div>
-
-    <!-- Results: three cards -->
-    <div id="out" style="display:none;">
-      <div class="grid results">
-        <div class="card center card-days">
-          <div class="sub" style="margin-bottom: 6px;">Days since</div>
-          <div class="big" id="days">—</div>
-          <div class="row" style="justify-content:center; margin-top: 8px;">
-            <span class="pill" id="flag">—</span>
-          </div>
-          <div class="sub" id="parsed" style="margin-top: 10px;">—</div>
-        </div>
-
-        <div class="card card-med" id="medCard" style="display:none;">
-          <div class="sub" style="margin-bottom: 6px;">Days left (estimated)</div>
-          <div class="big" id="daysLeft">—</div>
-          <div class="row" style="margin-top: 8px;">
-            <span class="pill" id="due">—</span>
-          </div>
-          <div class="sub" id="runout" style="margin-top: 10px;">—</div>
-          <div class="sub" id="canGet" style="margin-top: 6px;">—</div>
-        </div>
-
-        <div class="card card-gauge" id="gaugeCard" style="display:none;">
-          <div class="sub" style="margin-bottom: 6px;">Supply gauge</div>
-          <div class="bar" aria-label="supply gauge"><div id="barFill"></div></div>
-          <div class="row" style="justify-content: space-between; margin-top: 10px;">
-            <span class="pill" id="supply">—</span>
-            <span class="pill" id="pct">—</span>
-          </div>
-          <ul id="medDetails"></ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <details>
-        <summary>Dispense frequency (multiple dates)</summary>
-        <div style="margin-top: 10px;">
-          <p class="sub" style="margin-top: 0;">
-            Paste one dispense date per line. I’ll calculate the gaps between each dispense and show the average frequency.
-          </p>
-          <label for="historyDates">Dispense dates</label>
-          <textarea id="historyDates" rows="6" placeholder="One date per line. Examples:
-2701
-1202
-1902
-
-(= 27/01, 12/02, 19/02)"></textarea>
-
-          <div class="grid" style="margin-top: 10px; grid-template-columns: 1fr 1fr 1fr;">
-            <div>
-              <label for="freqQty">Quantity supplied each time (optional)</label>
-              <input id="freqQty" inputmode="decimal" placeholder="e.g. 28" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Days Since for Pharmacists</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="text-slate-950 dark:text-slate-100">
+    <div class="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-4 pb-16 pt-10">
+      <header class="card card-spotlight reveal">
+        <div class="flex flex-wrap items-center justify-between gap-6">
+          <div class="flex min-w-0 flex-1 items-center gap-4">
+            <div
+              class="grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-2xl text-white shadow-lg dark:bg-slate-100 dark:text-slate-900"
+            >
+              💊
             </div>
-            <div>
-              <label for="freqPerDay">Tablets per day (optional)</label>
-              <input id="freqPerDay" inputmode="decimal" placeholder="e.g. 1" />
-            </div>
-            <div>
-              <label for="freqBuffer">Allowed early (days)</label>
-              <input id="freqBuffer" inputmode="numeric" placeholder="9" />
-              <div class="sub" style="margin-top:6px;">Default: 9</div>
+            <div class="min-w-0">
+              <p class="label">Pharmacy utility</p>
+              <h1 class="text-2xl font-semibold sm:text-3xl">Days Since for Pharmacists</h1>
+              <p class="muted mt-2 max-w-xl text-sm">
+                Quick dispense checks, supply estimates, and history analysis — all offline and shareable with
+                URLs.
+              </p>
             </div>
           </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="themeToggle" class="btn-secondary" type="button" aria-pressed="false">
+              Dark mode
+            </button>
+            <button id="reset" class="btn" type="button">Reset</button>
+          </div>
+        </div>
+      </header>
 
-          <div class="row" style="margin-top: 10px;">
-            <button id="analyze" type="button">Analyze frequency</button>
-            <label class="row" style="gap:8px; margin-left: 6px;">
-              <input id="freqAsOfToday" type="checkbox" checked />
-              <span class="sub">Also project net tablets to today</span>
+      <main class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+        <section class="card reveal reveal-delay-1">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p class="label">Primary calculator</p>
+              <h2 class="text-xl font-semibold">Days since last dispense</h2>
+              <p class="muted mt-2 text-sm">
+                Enter the last dispense date. Optional tablet amount + daily rate unlock supply estimates and
+                early/OK logic.
+              </p>
+            </div>
+            <div class="pill pill-good">Shareable URLs enabled</div>
+          </div>
+
+          <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            <label class="space-y-2 text-sm" for="date">
+              <span class="label">Dispense date</span>
+              <input
+                id="date"
+                class="input"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="DD/MM or 2701"
+                aria-describedby="dateHelp"
+              />
+              <span id="dateHelp" class="muted text-xs">
+                Accepts DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM(YY).
+              </span>
             </label>
-            <span class="statusline" id="freqStatus"></span>
+            <label class="space-y-2 text-sm" for="amount">
+              <span class="label">Tablets supplied</span>
+              <input id="amount" class="input" type="number" min="0" step="1" placeholder="e.g. 60" />
+            </label>
+            <label class="space-y-2 text-sm" for="perDay">
+              <span class="label">Tablets per day</span>
+              <input id="perDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
+            </label>
+            <label class="space-y-2 text-sm" for="buffer">
+              <span class="label">Early supply buffer (days)</span>
+              <input id="buffer" class="input" type="number" min="0" step="1" placeholder="9" />
+            </label>
           </div>
 
-          <div id="freqOut" class="callout" style="margin-top: 12px; display:none;"></div>
-          <div id="freqTimeline" class="callout" style="margin-top: 12px; display:none;"></div>
-          <div class="sub" style="margin-top: 10px;">Tip: you can also separate dates with commas or spaces.</div>
-          <div class="sub">Caveat: assumes only the supplies listed here (no earlier stock, no extra supplies elsewhere).</div>
-        </div>
-      </details>
-    </div>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button id="calc" class="btn" type="button">Calculate</button>
+            <button id="copy" class="btn-secondary" type="button">Copy share link</button>
+            <p id="status" class="muted text-sm" role="status" aria-live="polite"></p>
+          </div>
 
-    <div class="card">
-      <details>
-        <summary>Want to use me faster? Set up a browser shortcut</summary>
-        <div style="margin-top: 10px;">
-          <div class="callout">
-            <div class="callout-title">Set up a browser shortcut (Chrome / Edge) — 1 minute</div>
-            <ol class="steps">
-              <li>Open <b>Settings</b> → <b>Search engine</b> → <b>Manage search engines</b>.</li>
-              <li>Click <b>Add</b>.</li>
-              <li>Name: <code>Days Since</code></li>
-              <li>Keyword: <code>ds</code></li>
-              <li>URL: paste this (with <code>?s=%s</code> at the end):<br/>
-                <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code>
-              </li>
-            </ol>
-            <button id="setupDone" type="button">I've set this up</button>
-            <div id="quickUse" class="quick-use" hidden>
-              <div class="sub" style="margin-bottom: 6px;">Quick use (in the address bar):</div>
-              <ul style="margin: 0 0 0 18px;">
-                <li><b>Basic:</b> <code>ds 25/06</code> (or <code>ds 2506</code>)</li>
-                <li><b>With meds:</b> <code>ds 25/06 30 1</code> (amount, per day)</li>
-                <li><b>Tip:</b> No slashes needed — <code>2506</code> works too</li>
-              </ul>
+          <div id="output" class="mt-8 space-y-6" hidden aria-live="polite">
+            <div class="grid gap-4 sm:grid-cols-[1.1fr_0.9fr]">
+              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+                <p class="label">Days since</p>
+                <div class="mt-3 flex items-end justify-between gap-3">
+                  <span id="daysValue" class="text-4xl font-semibold">0</span>
+                  <span id="daysPill" class="pill pill-good">0 days</span>
+                </div>
+                <p id="parsedValue" class="muted mt-3 text-sm">Parsed as</p>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+                <p class="label">Supply decision</p>
+                <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <span id="flagPill" class="pill pill-warn">Add tablets/day to judge supply</span>
+                </div>
+                <p id="canSupply" class="muted mt-3 text-sm">Add tablets/day to calculate “can supply on” date.</p>
+              </div>
+            </div>
+
+            <div id="medSection" class="grid gap-4 sm:grid-cols-2" hidden>
+              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+                <p class="label">Days remaining</p>
+                <div class="mt-3 flex items-end justify-between gap-3">
+                  <span id="daysLeftValue" class="text-4xl font-semibold">0</span>
+                  <span id="duePill" class="pill pill-good">Not due yet</span>
+                </div>
+                <p id="runoutValue" class="muted mt-3 text-sm">Run-out date:</p>
+              </div>
+              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+                <p class="label">Supply gauge</p>
+                <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <span id="supplyPill" class="pill pill-good">~0 days supply</span>
+                  <span id="percentPill" class="pill pill-warn">0% remaining</span>
+                </div>
+                <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800">
+                  <div id="percentBar" class="h-full rounded-full bg-slate-900 dark:bg-slate-100" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="gaugeSection" class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50" hidden>
+              <p class="label">Estimate details</p>
+              <ul id="medDetails" class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200"></ul>
             </div>
           </div>
-        </div>
-      </details>
+        </section>
 
-      <details>
-        <summary>I'm a power user — show me the syntax</summary>
-        <div style="margin-top: 10px;">
-          <p class="sub" style="margin-top: 0; margin-bottom: 6px;">Date formats:</p>
-          <ul>
-            <li><code>DD/MM</code> or <code>DD/MM/YY</code> or <code>DD/MM/YYYY</code></li>
-            <li>Compact <code>DDMM</code>/<code>DDMMYY</code>/<code>DDMMYYYY</code> (e.g. <code>2701</code> or <code>270126</code>)</li>
-            <li>Optional meds: add <code>amount</code> then <code>perDay</code> (e.g. <code>25/06 60 2</code>)</li>
-            <li>Optional buffer: add <code>&amp;buffer=9</code> to the URL (default 9)</li>
-          </ul>
+        <section class="card reveal reveal-delay-2">
+          <div>
+            <p class="label">History analyzer</p>
+            <h2 class="text-xl font-semibold">Dispense frequency + ledger</h2>
+            <p class="muted mt-2 text-sm">
+              Paste multiple dispense dates to find intervals, early fills, and projected tablet balance.
+              Separate dates with commas, spaces, or new lines.
+            </p>
+          </div>
 
-          <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">URL formats supported (for power users):</p>
-          <ul>
-            <li><code>?s=25/06</code> or <code>?s=25/06/2025</code></li>
-            <li><code>?s=25/06 30 1</code> (date, amount, per-day)</li>
-            <li><code>?date=25/06/2025&amp;amount=30&amp;perDay=1&amp;buffer=9</code></li>
-          </ul>
+          <div class="mt-6 space-y-4">
+            <label class="space-y-2 text-sm" for="historyDates">
+              <span class="label">Dispense dates</span>
+              <textarea
+                id="historyDates"
+                class="input min-h-[120px]"
+                placeholder="e.g. 05/01/26, 04/12/25, 05/11/25"
+              ></textarea>
+              <span class="muted text-xs">Tip: Use Ctrl/Cmd + Enter to analyze.</span>
+            </label>
 
-          <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">Handy browser %s shortcuts (new store setup):</p>
-          <ul>
-            <li><b>Days Since:</b> keyword <code>ds</code> → <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code></li>
-            <li><b>Chemist Warehouse:</b> keyword <code>cw</code> → <code>https://www.chemistwarehouse.com.au/search?searchtext=%s</code></li>
-            <li><b>PBS:</b> keyword <code>pbs</code> → <code>https://www.pbs.gov.au/pbs/search?term=%s</code></li>
-            <li><b>TGA Shortages:</b> keyword <code>short</code> → <code>https://apps.tga.gov.au/Prod/msi/Search?searchTerm=%s</code></li>
-            <li><b>NPS Medicine Finder:</b> keyword <code>nps</code> → <code>https://www.nps.org.au/medicine-finder/search?query=%s</code></li>
-          </ul>
-          <div class="sub">AMH / eMIMS URLs vary by account/login — easiest is to search once and use the results URL as the %s template.</div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="space-y-2 text-sm" for="freqQty">
+                <span class="label">Quantity per dispense</span>
+                <input id="freqQty" class="input" type="number" min="0" step="1" placeholder="e.g. 28" />
+              </label>
+              <label class="space-y-2 text-sm" for="freqPerDay">
+                <span class="label">Tablets per day</span>
+                <input id="freqPerDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
+              </label>
+              <label class="space-y-2 text-sm" for="freqBuffer">
+                <span class="label">Early buffer (days)</span>
+                <input id="freqBuffer" class="input" type="number" min="0" step="1" placeholder="9" />
+              </label>
+              <label class="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-3 text-sm shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+                <input id="freqAsOfToday" type="checkbox" class="h-4 w-4" checked />
+                <span>Project balance to today</span>
+              </label>
+            </div>
 
-        </div>
-      </details>
+            <div class="flex flex-wrap items-center gap-3">
+              <button id="analyze" class="btn" type="button">Analyze history</button>
+              <p id="freqStatus" class="muted text-sm" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div id="freqOutput" class="mt-6 space-y-3" hidden aria-live="polite"></div>
+          <p id="intervalsText" class="muted mt-4 text-xs"></p>
+          <div id="freqTimeline" class="mt-4 space-y-2" hidden></div>
+        </section>
+      </main>
+
+      <footer class="text-xs text-slate-500 dark:text-slate-400">
+        <p>
+          100% client-side. No data is stored or transmitted. Shareable URLs only include the fields you
+          enter.
+        </p>
+      </footer>
     </div>
-  </div>
 
-  <script>
-    function pad2(n) { return String(n).padStart(2, '0'); }
-
-    function startOfDay(d) {
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    }
-
-    function daysBetween(a, b) {
-      // b - a in whole days
-      const ms = startOfDay(b).getTime() - startOfDay(a).getTime();
-      return Math.floor(ms / 86400000);
-    }
-
-    function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
-
-    function median(nums) {
-      if (!nums.length) return null;
-      const a = [...nums].sort((x, y) => x - y);
-      const mid = Math.floor(a.length / 2);
-      return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
-    }
-
-    function mean(nums) {
-      if (!nums.length) return null;
-      return nums.reduce((s, x) => s + x, 0) / nums.length;
-    }
-
-    function parseManyDates(text) {
-      // Accept newline, comma, or space separated tokens.
-      const tokens = (text || '')
-        .split(/[\n,]+/)
-        .flatMap((line) => line.trim().split(/\s+/))
-        .map((t) => t.trim())
-        .filter(Boolean);
-
-      const dates = [];
-      const errors = [];
-
-      for (const tok of tokens) {
-        const p = parseFlexibleDate(tok);
-        if (p.ok) dates.push(startOfDay(p.date));
-        else errors.push(tok);
-      }
-
-      // De-duplicate
-      const uniq = Array.from(new Map(dates.map((d) => [d.getTime(), d])).values());
-      uniq.sort((a, b) => a.getTime() - b.getTime());
-
-      return { dates: uniq, errors };
-    }
-
-    function parseFlexibleDate(raw) {
-      // Accept:
-      // - DD/MM, DD/MM/YY, DD/MM/YYYY
-      // - compact numeric: DDMM, DDMMYY, DDMMYYYY (e.g. 2701 => 27/01/[inferred])
-      const s = (raw || '').trim();
-
-      let dd, mm, yyRaw;
-
-      // Compact numeric first (helps with browser search keywords where '/' is awkward)
-      const compact = s.match(/^\s*(\d{4}|\d{6}|\d{8})\s*$/);
-      if (compact) {
-        const digits = compact[1];
-        dd = Number(digits.slice(0, 2));
-        mm = Number(digits.slice(2, 4));
-        yyRaw = digits.length > 4 ? digits.slice(4) : undefined;
-      } else {
-        const m = s.match(/^\s*(\d{1,2})\s*[\/\-\. ]\s*(\d{1,2})(?:\s*[\/\-\. ]\s*(\d{2,4}))?\s*$/);
-        if (!m) return { ok: false, error: 'Enter date as DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM(YY)(YYYY).' };
-        dd = Number(m[1]);
-        mm = Number(m[2]);
-        yyRaw = m[3];
-      }
-
-      if (!(dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12)) {
-        return { ok: false, error: 'Invalid day/month.' };
-      }
-
-      const today = startOfDay(new Date());
-      const currentYear = today.getFullYear();
-
-      let year;
-      let inferred = false;
-
-      if (!yyRaw) {
-        // No year provided: pick the most recent occurrence.
-        year = currentYear;
-        inferred = true;
-        const candidate = new Date(year, mm - 1, dd);
-        if (candidate.getMonth() !== (mm - 1) || candidate.getDate() !== dd) {
-          return { ok: false, error: 'That date does not exist.' };
-        }
-        if (startOfDay(candidate).getTime() > today.getTime()) {
-          year = currentYear - 1;
-        }
-      } else {
-        const yNum = Number(yyRaw);
-        if (yyRaw.length === 2) {
-          // Interpret 2-digit years as 2000-2099.
-          year = 2000 + yNum;
-        } else {
-          year = yNum;
-        }
-      }
-
-      const date = new Date(year, mm - 1, dd);
-      if (date.getMonth() !== (mm - 1) || date.getDate() !== dd) {
-        return { ok: false, error: 'That date does not exist.' };
-      }
-
-      return { ok: true, date, inferred, input: s };
-    }
-
-    function parseNumber(raw) {
-      if (raw == null) return null;
-      const s = String(raw).trim();
-      if (!s) return null;
-      const n = Number(s.replace(',', '.'));
-      return Number.isFinite(n) ? n : null;
-    }
-
-    function pickStatus(days) {
-      if (days < 0) return { cls: 'bad', text: 'In the future (check date)' };
-      if (days === 0) return { cls: 'warn', text: 'Today' };
-      if (days <= 7) return { cls: 'good', text: 'Recent' };
-      if (days <= 30) return { cls: 'warn', text: 'A while ago' };
-      // Default fallback: keep simple
-      return { cls: 'bad', text: '—' };
-    }
-
-    function supplyDecision(daysLeft, bufferDays) {
-      // Goal: at a glance, is it reasonable to SUPPLY today?
-      // - ✅ if due soon (within buffer) OR overdue (ran out already)
-      // - ❌ if too early (they should still have plenty left)
-      // - ⚠️ if inputs are missing
-      if (daysLeft == null) return { cls: 'warn', text: 'Add tablets/day to judge supply' };
-
-      const b = Number.isFinite(bufferDays) ? bufferDays : 9;
-
-      if (daysLeft < 0) {
-        return { cls: 'good', text: `✅ Overdue by ${Math.abs(daysLeft)}d (OK to supply)` };
-      }
-      if (daysLeft <= b) {
-        return { cls: 'good', text: `✅ Due soon (${daysLeft}d left)` };
-      }
-      return { cls: 'bad', text: `❌ Too early (${daysLeft}d left)` };
-    }
-
-    function setPill(el, cls, text) {
-      el.className = 'pill' + (cls ? ' ' + cls : '');
-      el.textContent = text;
-    }
-
-    function formatDate(d) {
-      return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
-    }
-
-    function compute() {
-      const dateRaw = document.querySelector('#date').value;
-      const amountRaw = document.querySelector('#amount').value;
-      const perDayRaw = document.querySelector('#perDay').value;
-
-      // buffer handled via numeric input (default 9)
-
-      const p = parseFlexibleDate(dateRaw);
-      const statusEl = document.querySelector('#status');
-
-      if (!p.ok) {
-        statusEl.textContent = p.error;
-        document.querySelector('#out').style.display = 'none';
-        return;
-      }
-
-      const today = startOfDay(new Date());
-      const d = startOfDay(p.date);
-      const days = daysBetween(d, today);
-
-      document.querySelector('#out').style.display = '';
-      document.querySelector('#days').textContent = `${days}`;
-
-      const inferredNote = p.inferred ? ' (year inferred)' : '';
-      document.querySelector('#parsed').textContent = `Parsed as ${formatDate(d)}${inferredNote}`;
-
-      // Medication cards
-      const amount = parseNumber(amountRaw);
-      const perDay = parseNumber(perDayRaw);
-
-      const medCard = document.querySelector('#medCard');
-      const gaugeCard = document.querySelector('#gaugeCard');
-      const details = document.querySelector('#medDetails');
-      details.innerHTML = '';
-
-      let daysLeftForFlag = null;
-
-      if (amount != null && perDay != null && perDay > 0) {
-        medCard.style.display = '';
-        gaugeCard.style.display = '';
-
-        const daysSupply = amount / perDay;
-        const totalDays = Math.max(0, Math.floor(daysSupply));
-        const runoutDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + totalDays);
-
-        const daysLeft = daysBetween(today, runoutDate); // runout - today
-        daysLeftForFlag = daysLeft;
-
-        // Days left card
-        document.querySelector('#daysLeft').textContent = `${daysLeft}`;
-        document.querySelector('#runout').textContent = `Run-out date: ${formatDate(startOfDay(runoutDate))}`;
-
-        let dueCls = 'good';
-        let dueText = '';
-        if (daysLeft > 0) {
-          dueCls = 'good';
-          dueText = `Not due yet (${daysLeft}d left)`;
-        } else if (daysLeft === 0) {
-          dueCls = 'warn';
-          dueText = 'Due today (by this estimate)';
-        } else {
-          dueCls = 'bad';
-          dueText = `Overdue by ${Math.abs(daysLeft)}d (by this estimate)`;
-        }
-        setPill(document.querySelector('#due'), dueCls, dueText);
-
-        // Gauge card
-        setPill(document.querySelector('#supply'), 'good', `~${daysSupply.toFixed(daysSupply < 10 ? 1 : 0)} days supply`);
-
-        // Percent remaining (based on whole-day supply)
-        const used = clamp(daysBetween(d, today), 0, totalDays);
-        const remaining = clamp(totalDays - used, 0, totalDays);
-        const pct = totalDays > 0 ? (remaining / totalDays) : 0;
-
-        document.querySelector('#barFill').style.width = `${(pct * 100).toFixed(0)}%`;
-
-        let pctCls = 'good';
-        if (pct <= 0.15) pctCls = 'bad';
-        else if (pct <= 0.35) pctCls = 'warn';
-        setPill(document.querySelector('#pct'), pctCls, `${(pct * 100).toFixed(0)}% remaining`);
-
-        const li1 = document.createElement('li');
-        li1.textContent = `Start date: ${formatDate(d)}`;
-        const li2 = document.createElement('li');
-        li2.textContent = `Amount: ${amount} tablets`;
-        const li3 = document.createElement('li');
-        li3.textContent = `Rate: ${perDay} tablets/day`;
-        const li4 = document.createElement('li');
-        li4.textContent = `Estimated run-out: ${formatDate(startOfDay(runoutDate))}`;
-        details.append(li1, li2, li3, li4);
-      } else {
-        medCard.style.display = 'none';
-        gaugeCard.style.display = 'none';
-      }
-
-      // Supply decision + "can get on" date
-      const bufferUi = parseNumber(document.querySelector('#buffer')?.value);
-      const buffer = (bufferUi == null ? 9 : bufferUi);
-
-      if (amount != null && perDay != null && perDay > 0) {
-        const f = supplyDecision(daysLeftForFlag, buffer);
-        setPill(document.querySelector('#flag'), f.cls, f.text);
-
-        const canGetEl = document.querySelector('#canGet');
-        const daysUntilOk = Math.max(0, (daysLeftForFlag - buffer));
-        const okDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilOk);
-        if (daysUntilOk === 0) {
-          canGetEl.textContent = 'Can supply: today';
-        } else {
-          canGetEl.textContent = `Can supply on: ${formatDate(startOfDay(okDate))} (in ${daysUntilOk}d)`;
-        }
-      } else {
-        const st = pickStatus(days);
-        setPill(document.querySelector('#flag'), st.cls, st.text);
-        const canGetEl = document.querySelector('#canGet');
-        if (canGetEl) canGetEl.textContent = 'Add tablets/day to calculate “can supply on” date.';
-      }
-
-      statusEl.textContent = '';
-    }
-
-    function fillFromQuery() {
-      const params = new URLSearchParams(location.search);
-
-      // Support search-engine style: ?s=<stuff>
-      const s = params.get('s') || params.get('q') || '';
-
-      if (s) {
-        const parts = decodeURIComponent(s).trim().split(/\s+/);
-        if (parts[0]) document.querySelector('#date').value = parts[0];
-        if (parts[1]) document.querySelector('#amount').value = parts[1];
-        if (parts[2]) document.querySelector('#perDay').value = parts[2];
-      }
-
-      const date = params.get('date');
-      const amount = params.get('amount');
-      const perDay = params.get('perDay');
-      const buffer = params.get('buffer');
-      if (date) document.querySelector('#date').value = date;
-      if (amount) document.querySelector('#amount').value = amount;
-      if (perDay) document.querySelector('#perDay').value = perDay;
-      if (buffer && document.querySelector('#buffer')) document.querySelector('#buffer').value = buffer;
-
-      // buffer input is numeric; default handled in compute()
-
-      if (document.querySelector('#date').value.trim()) {
-        compute();
-      }
-    }
-
-    function buildShareUrl() {
-      const date = document.querySelector('#date').value.trim();
-      const amount = document.querySelector('#amount').value.trim();
-      const perDay = document.querySelector('#perDay').value.trim();
-      const buffer = document.querySelector('#buffer')?.value;
-
-      const tokens = [date, amount, perDay].filter(Boolean).join(' ');
-      const url = new URL(location.href);
-      url.search = '';
-      if (tokens) url.searchParams.set('s', tokens);
-      if (buffer && buffer !== '9') url.searchParams.set('buffer', buffer);
-      return url.toString();
-    }
-
-    document.querySelector('#calc').addEventListener('click', compute);
-    document.querySelector('#copy').addEventListener('click', async () => {
-      const url = buildShareUrl();
-      try {
-        await navigator.clipboard.writeText(url);
-        document.querySelector('#status').textContent = 'Copied link.';
-      } catch {
-        document.querySelector('#status').textContent = url;
-      }
-    });
-
-    // Quick-fill buttons
-    document.querySelectorAll('button.chip').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const key = btn.getAttribute('data-set');
-        const val = btn.getAttribute('data-val');
-        const input = document.querySelector('#' + key);
-        if (input) input.value = val;
-        compute();
-      });
-    });
-
-    const setupBtn = document.querySelector('#setupDone');
-    const quickUse = document.querySelector('#quickUse');
-    if (setupBtn && quickUse) {
-      setupBtn.addEventListener('click', () => {
-        const isHidden = quickUse.hasAttribute('hidden');
-        if (isHidden) {
-          quickUse.removeAttribute('hidden');
-          setupBtn.textContent = 'Show less';
-        } else {
-          quickUse.setAttribute('hidden', '');
-          setupBtn.textContent = "I've set this up";
-        }
-      });
-    }
-
-    // Buffer input updates (keyboard-first): compute on Enter already; also compute on blur/change.
-    const bufferEl = document.querySelector('#buffer');
-    if (bufferEl) {
-      bufferEl.addEventListener('change', compute);
-      bufferEl.addEventListener('blur', compute);
-    }
-
-    // Dispense frequency analyzer
-    const analyzeBtn = document.querySelector('#analyze');
-    if (analyzeBtn) {
-      analyzeBtn.addEventListener('click', () => {
-        const text = document.querySelector('#historyDates')?.value || '';
-        const out = document.querySelector('#freqOut');
-        const status = document.querySelector('#freqStatus');
-        if (!out || !status) return;
-
-        const { dates, errors } = parseManyDates(text);
-        if (errors.length) {
-          status.textContent = `Could not parse: ${errors.slice(0, 5).join(', ')}${errors.length > 5 ? ` +${errors.length - 5} more` : ''}`;
-        } else {
-          status.textContent = '';
-        }
-
-        if (dates.length < 2) {
-          out.style.display = 'none';
-          status.textContent = status.textContent || 'Add at least 2 dates.';
-          return;
-        }
-
-        // gaps between consecutive dates (in days)
-        const gaps = [];
-        for (let i = 1; i < dates.length; i++) {
-          gaps.push(daysBetween(dates[i - 1], dates[i]));
-        }
-
-        const avg = mean(gaps);
-        const med = median(gaps);
-        const min = Math.min(...gaps);
-        const max = Math.max(...gaps);
-
-        const first = dates[0];
-        const last = dates[dates.length - 1];
-
-        // Optional supply maths for timeline colouring + stock balance
-        const qty = parseNumber(document.querySelector('#freqQty')?.value);
-        const perDay = parseNumber(document.querySelector('#freqPerDay')?.value);
-        const bufferRaw = parseNumber(document.querySelector('#freqBuffer')?.value);
-        const buffer = Number.isFinite(bufferRaw) ? bufferRaw : 9;
-
-        const expectedDays = (qty != null && perDay != null && perDay > 0) ? (qty / perDay) : null;
-        const okThreshold = (expectedDays != null) ? Math.max(0, expectedDays - buffer) : null;
-
-        // Stock ledger (assumes starting balance 0 at first date)
-        // We report balance at LAST DISPENSE DATE by default (not "today"), so old histories don't go massively negative.
-        // Optionally we can also show an "as of today" projection.
-        let balanceAtLastDate = null;
-        let balanceAsOfToday = null;
-        if (qty != null && perDay != null && perDay > 0) {
-          let bal = 0;
-          for (let i = 0; i < dates.length; i++) {
-            bal += qty;
-            if (i < dates.length - 1) {
-              const gap = daysBetween(dates[i], dates[i + 1]);
-              bal -= gap * perDay;
-            }
-          }
-          balanceAtLastDate = bal;
-          const sinceLast = daysBetween(last, startOfDay(new Date()));
-          balanceAsOfToday = bal - sinceLast * perDay;
-        }
-
-        // Render summary
-        const extra = [];
-        if (expectedDays != null) {
-          extra.push(`<li><b>Expected gap:</b> ${expectedDays.toFixed(1)} days (qty/perDay)</li>`);
-          extra.push(`<li><b>Early threshold:</b> &lt; ${okThreshold.toFixed(1)} days = early</li>`);
-        }
-        if (balanceAtLastDate != null) {
-          const cls = balanceAtLastDate >= 0 ? 'good' : 'bad';
-          extra.push(`<li><b>Net tablets (est.) at last dispense date:</b> <span class="pill ${cls}">${balanceAtLastDate.toFixed(0)}</span></li>`);
-          extra.push(`<li class="sub">Assumes only the supplies listed (starting balance = 0 at first date).</li>`);
-
-          // Optional projection to today (can be useful when the last date is recent)
-          const showToday = document.querySelector('#freqAsOfToday')?.checked;
-          if (showToday && balanceAsOfToday != null) {
-            const cls2 = balanceAsOfToday >= 0 ? 'good' : 'bad';
-            extra.push(`<li><b>Projected net tablets today:</b> <span class="pill ${cls2}">${balanceAsOfToday.toFixed(0)}</span></li>`);
-          }
-        }
-
-        out.innerHTML = `
-          <div class="callout-title">Dispense frequency summary</div>
-          <ul class="steps">
-            <li><b>Dates:</b> ${dates.length} (${formatDate(first)} → ${formatDate(last)})</li>
-            <li><b>Intervals:</b> ${gaps.length} gaps</li>
-            <li><b>Average gap:</b> ${avg.toFixed(1)} days</li>
-            <li><b>Median gap:</b> ${med.toFixed(1)} days</li>
-            <li><b>Range:</b> ${min}–${max} days</li>
-            ${extra.join('\n')}
-          </ul>
-          <div class="sub">Intervals used: ${gaps.join(', ')} days</div>
-        `;
-        out.style.display = '';
-
-        // Timeline (SVG)
-        const tl = document.querySelector('#freqTimeline');
-        if (tl) {
-          const span = Math.max(1, daysBetween(first, last));
-          const w = 820;
-          const h = 90;
-          const leftPad = 18;
-          const rightPad = 18;
-          const usable = w - leftPad - rightPad;
-          const y = 38;
-
-          const xFor = (d) => leftPad + ((daysBetween(first, d) / span) * usable);
-
-          const segments = [];
-          for (let i = 1; i < dates.length; i++) {
-            const a = dates[i - 1];
-            const b = dates[i];
-            const gap = daysBetween(a, b);
-            let col = '#16a34a'; // green
-            let tag = 'OK';
-            if (okThreshold != null && gap < okThreshold) {
-              col = '#ef4444';
-              tag = `EARLY (${gap}d)`;
-            } else {
-              tag = `${gap}d`;
-            }
-            segments.push({ x1: xFor(a), x2: xFor(b), col, label: tag });
-          }
-
-          const dots = dates.map((d) => ({ x: xFor(d), label: formatDate(d) }));
-
-          const svg = `
-            <div class="callout-title">Timeline</div>
-            <div class="sub" style="margin-bottom:8px;">Green = OK gap. Red = early (based on qty/perDay and buffer).</div>
-            <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="dispense timeline">
-              <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="var(--timeline-base)" stroke-width="6" stroke-linecap="round" />
-              ${segments.map(s => `
-                <line x1="${s.x1}" y1="${y}" x2="${s.x2}" y2="${y}" stroke="${s.col}" stroke-width="6" stroke-linecap="round" />
-                <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="var(--muted)">${s.label}</text>
-              `).join('')}
-              ${dots.map(d => `
-                <circle cx="${d.x}" cy="${y}" r="7" fill="var(--timeline-dot)" stroke="var(--timeline-dot-stroke)" stroke-width="2" />
-              `).join('')}
-              <text x="${leftPad}" y="${h - 10}" font-size="11" fill="var(--muted)">${formatDate(first)}</text>
-              <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="var(--muted)">${formatDate(last)}</text>
-            </svg>
-          `;
-
-          // If no qty/perDay, still show timeline but with neutral colouring and no early logic
-          if (expectedDays == null) {
-            tl.innerHTML = `
-              <div class="callout-title">Timeline</div>
-              <div class="sub" style="margin-bottom:8px;">Enter quantity + tablets/day to colour early vs OK.</div>
-              <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="dispense timeline">
-                <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="var(--timeline-base)" stroke-width="6" stroke-linecap="round" />
-                ${segments.map(s => `
-                  <line x1="${s.x1}" y1="${y}" x2="${s.x2}" y2="${y}" stroke="var(--timeline-neutral)" stroke-width="6" stroke-linecap="round" />
-                  <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="var(--muted)">${s.label}</text>
-                `).join('')}
-                ${dots.map(d => `<circle cx="${d.x}" cy="${y}" r="7" fill="var(--timeline-dot)" stroke="var(--timeline-dot-stroke)" stroke-width="2" />`).join('')}
-                <text x="${leftPad}" y="${h - 10}" font-size="11" fill="var(--muted)">${formatDate(first)}</text>
-                <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="var(--muted)">${formatDate(last)}</text>
-              </svg>
-            `;
-          } else {
-            tl.innerHTML = svg;
-          }
-          tl.style.display = '';
-        }
-
-      });
-    }
-
-    // Do NOT run frequency analyzer on Enter globally.
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const active = document.activeElement;
-        const isTextArea = active && active.tagName === 'TEXTAREA';
-        if (!isTextArea) compute();
-      }
-    });
-
-    fillFromQuery();
-
-    // Reset button clears inputs + results but keeps theme.
-    const resetBtn = document.querySelector('#reset');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        ['date','amount','perDay','buffer'].forEach((id) => {
-          const el = document.querySelector('#' + id);
-          if (el) el.value = '';
-        });
-        ['historyDates','freqQty','freqPerDay','freqBuffer'].forEach((id) => {
-          const el = document.querySelector('#' + id);
-          if (el) el.value = '';
-        });
-        const cb = document.querySelector('#freqAsOfToday');
-        if (cb) cb.checked = true;
-
-        const out = document.querySelector('#out');
-        if (out) out.style.display = 'none';
-
-        const freqOut = document.querySelector('#freqOut');
-        const freqTl = document.querySelector('#freqTimeline');
-        const freqStatus = document.querySelector('#freqStatus');
-        if (freqOut) { freqOut.style.display = 'none'; freqOut.innerHTML = ''; }
-        if (freqTl) { freqTl.style.display = 'none'; freqTl.innerHTML = ''; }
-        if (freqStatus) freqStatus.textContent = '';
-
-        const status = document.querySelector('#status');
-        if (status) status.textContent = '';
-      });
-    }
-
-    const toggleBtn = document.querySelector('#themeToggle');
-    const root = document.documentElement;
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark') {
-      root.classList.add('theme-dark');
-      if (toggleBtn) {
-        toggleBtn.textContent = 'Light mode';
-        toggleBtn.setAttribute('aria-pressed', 'true');
-      }
-    }
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
-        const isDark = root.classList.toggle('theme-dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        toggleBtn.textContent = isDark ? 'Light mode' : 'Dark mode';
-        toggleBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-      });
-    }
-  </script>
-</body>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

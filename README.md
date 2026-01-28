@@ -12,20 +12,15 @@ Fast, simple, and private. **Days Since for Pharmacists** is a lightweight web t
 - **Stay fast at the counter**: works in seconds, on any device, no logins
 - **Privacy‑friendly**: runs fully in your browser, nothing is saved or sent
 
-## Common use cases
-- Checking whether a repeat is **too early or due** while serving a line
-- Estimating **days of supply remaining** from tablets and daily dose
-- Handling quick phone queries (“Is it due yet?”) without digging into notes
-- Reviewing dispensing patterns over time (repeat frequency / possible early supply)
-
 ## What it does
 - Calculates **days since** a date
 - Estimates **days of medication supply** if you enter amount + tablets per day
 - Flags **OK to supply vs too early** based on an early‑supply buffer
 - **Dispense frequency** view: paste multiple dispense dates to see average gap + a colour timeline (green OK / red early)
+- Optional **tablet ledger** projection (net balance at last date, plus today if toggled)
 
 ## Dispense frequency + timeline view (multiple dates)
-Open **“Dispense frequency (multiple dates)”** and paste dispense dates.
+Open **“Dispense frequency + ledger”** and paste dispense dates.
 
 ![Timeline mode screenshot](assets/daySinceTimeline.png)
 
@@ -65,19 +60,32 @@ It reports:
 ## Privacy first
 This tool runs entirely in your browser. **No data is saved, stored, or sent anywhere.**
 
-## Easy inputs (non‑technical)
-- **Date formats:** `DD/MM`, `DD/MM/YY`, `DD/MM/YYYY` (or compact `DDMM`, `DDMMYY`, `DDMMYYYY`)
-- **Optional meds:** add `amount` then `perDay` (e.g. `25/06 60 2`)
-- **Optional buffer:** add `&buffer=9` to the URL (default 9)
-
 ## Power‑user URL formats
 - `?s=25/06` or `?s=25/06/2025`
 - `?s=25/06 30 1` (date, amount, per‑day)
 - `?date=25/06/2025&amount=30&perDay=1&buffer=9`
 
-## Run locally
-Open `index.html` in a browser, or serve locally:
+## Development
+
+### Requirements
+- Node.js 18+ (20+ recommended)
+- npm
+
+### Setup
 ```bash
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
-Then visit: http://localhost:8080
+
+### Scripts
+- `npm run dev` — start Vite dev server
+- `npm run build` — build the static site to `dist/`
+- `npm run preview` — preview the production build locally
+- `npm run typecheck` — TypeScript checks
+- `npm run lint` — ESLint
+- `npm run format` — Prettier (Tailwind plugin enabled)
+- `npm run test` — Vitest unit tests
+
+### GitHub Pages
+The Vite base path is set to `/Days-Since-for-Pharmacists/` to support GitHub Pages.
+Deploys from `dist/` via the GitHub Actions workflow in `.github/workflows/pages.yml`.
