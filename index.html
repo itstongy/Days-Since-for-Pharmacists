@@ -448,7 +448,10 @@
           <p class="brand-subtitle">for pharmacists</p>
         </div>
       </div>
-      <button id="themeToggle" type="button" class="theme-toggle" aria-pressed="false">Dark mode</button>
+      <div class="row" style="justify-content: flex-end; gap: 8px;">
+        <button id="reset" type="button" class="theme-toggle" title="Clear inputs">Reset</button>
+        <button id="themeToggle" type="button" class="theme-toggle" aria-pressed="false">Dark mode</button>
+      </div>
     </header>
 
     <p class="lede">Fast “days since” + optional supply calculation.</p>
@@ -1177,6 +1180,36 @@
     });
 
     fillFromQuery();
+
+    // Reset button clears inputs + results but keeps theme.
+    const resetBtn = document.querySelector('#reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        ['date','amount','perDay','buffer'].forEach((id) => {
+          const el = document.querySelector('#' + id);
+          if (el) el.value = '';
+        });
+        ['historyDates','freqQty','freqPerDay','freqBuffer'].forEach((id) => {
+          const el = document.querySelector('#' + id);
+          if (el) el.value = '';
+        });
+        const cb = document.querySelector('#freqAsOfToday');
+        if (cb) cb.checked = true;
+
+        const out = document.querySelector('#out');
+        if (out) out.style.display = 'none';
+
+        const freqOut = document.querySelector('#freqOut');
+        const freqTl = document.querySelector('#freqTimeline');
+        const freqStatus = document.querySelector('#freqStatus');
+        if (freqOut) { freqOut.style.display = 'none'; freqOut.innerHTML = ''; }
+        if (freqTl) { freqTl.style.display = 'none'; freqTl.innerHTML = ''; }
+        if (freqStatus) freqStatus.textContent = '';
+
+        const status = document.querySelector('#status');
+        if (status) status.textContent = '';
+      });
+    }
 
     const toggleBtn = document.querySelector('#themeToggle');
     const root = document.documentElement;
