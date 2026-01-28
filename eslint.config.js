@@ -11,12 +11,12 @@ export default tseslint.config(
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.vitest
-      }
+        ...globals.vitest,
+      },
     },
     rules: {
       'no-console': 'off',
-      '@typescript-eslint/consistent-type-imports': 'error'
-    }
-  }
+      '@typescript-eslint/consistent-type-imports': 'error',
+    },
+  },
 );

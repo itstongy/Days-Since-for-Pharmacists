@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["vitest/globals"]
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts", "vitest.config.ts"]
 }

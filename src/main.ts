@@ -1,6 +1,11 @@
 import './style.css';
 
-import { computeCanSupplyDate, computeSupplyMetrics, pickRecencyStatus, supplyDecision } from './lib/calc';
+import {
+  computeCanSupplyDate,
+  computeSupplyMetrics,
+  pickRecencyStatus,
+  supplyDecision,
+} from './lib/calc';
 import { daysBetween, formatDate, parseFlexibleDate, parseManyDates, startOfDay } from './lib/date';
 import { analyzeFrequency } from './lib/frequency';
 import { parseNumber } from './lib/number';
@@ -26,6 +31,7 @@ const parsedValue = byId<HTMLSpanElement>('parsedValue');
 const daysPill = byId<HTMLSpanElement>('daysPill');
 const flagPill = byId<HTMLSpanElement>('flagPill');
 const canSupplyEl = byId<HTMLParagraphElement>('canSupply');
+const decisionCard = byId<HTMLDivElement>('decisionCard');
 
 const medSection = byId<HTMLDivElement>('medSection');
 const gaugeSection = byId<HTMLDivElement>('gaugeSection');
@@ -66,6 +72,47 @@ const setStatus = (el: HTMLElement | null, text: string) => {
   el.textContent = text;
 };
 
+const setDecisionCardTone = (kind: 'good' | 'warn' | 'bad') => {
+  if (!decisionCard) return;
+  decisionCard.classList.remove(
+    'border-emerald-300/70',
+    'bg-emerald-50/70',
+    'dark:border-emerald-500/40',
+    'dark:bg-emerald-950/30',
+    'border-amber-300/70',
+    'bg-amber-50/70',
+    'dark:border-amber-500/40',
+    'dark:bg-amber-950/30',
+    'border-rose-300/70',
+    'bg-rose-50/70',
+    'dark:border-rose-500/40',
+    'dark:bg-rose-950/30',
+  );
+
+  if (kind === 'good') {
+    decisionCard.classList.add(
+      'border-emerald-300/70',
+      'bg-emerald-50/70',
+      'dark:border-emerald-500/40',
+      'dark:bg-emerald-950/30',
+    );
+  } else if (kind === 'bad') {
+    decisionCard.classList.add(
+      'border-rose-300/70',
+      'bg-rose-50/70',
+      'dark:border-rose-500/40',
+      'dark:bg-rose-950/30',
+    );
+  } else {
+    decisionCard.classList.add(
+      'border-amber-300/70',
+      'bg-amber-50/70',
+      'dark:border-amber-500/40',
+      'dark:bg-amber-950/30',
+    );
+  }
+};
+
 const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | null) => {
   if (!freqTimeline) return;
   freqTimeline.innerHTML = '';
@@ -81,15 +128,16 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
 
   const subtitle = document.createElement('div');
   subtitle.className = 'mt-1 text-xs text-slate-500 dark:text-slate-400';
-  subtitle.textContent = okThreshold == null
-    ? 'Enter quantity + tablets/day to color early vs OK.'
-    : 'Green = OK gap. Red = early (based on qty/perDay and buffer).';
+  subtitle.textContent =
+    okThreshold == null
+      ? 'Enter quantity + tablets/day to color early vs OK.'
+      : 'Green = OK gap. Red = early (based on qty/perDay and buffer).';
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  const width = 820;
-  const height = 90;
-  const leftPad = 18;
-  const rightPad = 18;
+  const width = 1100;
+  const height = 150;
+  const leftPad = 24;
+  const rightPad = 24;
   const first = dates[0];
   const last = dates[dates.length - 1];
   if (!first || !last) {
@@ -99,7 +147,7 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
 
   const span = Math.max(1, daysBetween(first, last));
   const usable = width - leftPad - rightPad;
-  const y = 38;
+  const y = 62;
 
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.setAttribute('width', '100%');
@@ -113,7 +161,7 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
   baseLine.setAttribute('y1', String(y));
   baseLine.setAttribute('y2', String(y));
   baseLine.setAttribute('stroke', 'var(--muted)');
-  baseLine.setAttribute('stroke-width', '6');
+  baseLine.setAttribute('stroke-width', '8');
   baseLine.setAttribute('stroke-linecap', 'round');
   baseLine.setAttribute('opacity', '0.35');
   svg.appendChild(baseLine);
@@ -135,7 +183,7 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
     segment.setAttribute('y1', String(y));
     segment.setAttribute('y2', String(y));
     segment.setAttribute('stroke', color);
-    segment.setAttribute('stroke-width', '6');
+    segment.setAttribute('stroke-width', '8');
     segment.setAttribute('stroke-linecap', 'round');
     svg.appendChild(segment);
 
@@ -143,7 +191,7 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
     label.setAttribute('x', String((xFor(prev) + xFor(next)) / 2));
     label.setAttribute('y', String(y - 10));
     label.setAttribute('text-anchor', 'middle');
-    label.setAttribute('font-size', '11');
+    label.setAttribute('font-size', '13');
     label.setAttribute('fill', 'var(--muted)');
     label.textContent = isEarly && okThreshold != null ? `EARLY (${gap}d)` : `${gap}d`;
     svg.appendChild(label);
@@ -153,7 +201,7 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
     const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     dot.setAttribute('cx', String(xFor(date)));
     dot.setAttribute('cy', String(y));
-    dot.setAttribute('r', '7');
+    dot.setAttribute('r', '9');
     dot.setAttribute('fill', 'var(--fg)');
     dot.setAttribute('stroke', 'var(--bg)');
     dot.setAttribute('stroke-width', '2');
@@ -163,7 +211,7 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
   const firstLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   firstLabel.setAttribute('x', String(leftPad));
   firstLabel.setAttribute('y', String(height - 10));
-  firstLabel.setAttribute('font-size', '11');
+  firstLabel.setAttribute('font-size', '12');
   firstLabel.setAttribute('fill', 'var(--muted)');
   firstLabel.textContent = formatDate(first);
   svg.appendChild(firstLabel);
@@ -171,7 +219,7 @@ const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | nul
   const lastLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   lastLabel.setAttribute('x', String(width - rightPad));
   lastLabel.setAttribute('y', String(height - 10));
-  lastLabel.setAttribute('font-size', '11');
+  lastLabel.setAttribute('font-size', '12');
   lastLabel.setAttribute('text-anchor', 'end');
   lastLabel.setAttribute('fill', 'var(--muted)');
   lastLabel.textContent = formatDate(last);
@@ -218,7 +266,7 @@ const computeAndRender = () => {
     setPill(
       supplyPill,
       'good',
-      `~${metrics.daysSupply.toFixed(metrics.daysSupply < 10 ? 1 : 0)} days supply`
+      `~${metrics.daysSupply.toFixed(metrics.daysSupply < 10 ? 1 : 0)} days supply`,
     );
 
     if (percentBar) {
@@ -227,7 +275,7 @@ const computeAndRender = () => {
     setPill(
       percentPill,
       metrics.percentStatus,
-      `${Math.round(metrics.percentRemaining * 100)}% remaining`
+      `${Math.round(metrics.percentRemaining * 100)}% remaining`,
     );
 
     if (medDetails) {
@@ -236,7 +284,7 @@ const computeAndRender = () => {
         `Start date: ${formatDate(startDate)}`,
         `Amount: ${amount} tablets`,
         `Rate: ${perDay} tablets/day`,
-        `Estimated run-out: ${formatDate(metrics.runoutDate)}`
+        `Estimated run-out: ${formatDate(metrics.runoutDate)}`,
       ];
       items.forEach((text) => {
         const li = document.createElement('li');
@@ -247,6 +295,7 @@ const computeAndRender = () => {
 
     const decision = supplyDecision(metrics.daysLeft, buffer);
     setPill(flagPill, decision.kind, decision.text);
+    setDecisionCardTone(decision.kind);
 
     const { date, daysUntilOk } = computeCanSupplyDate(today, metrics.daysLeft, buffer);
     canSupplyEl.textContent =
@@ -259,6 +308,7 @@ const computeAndRender = () => {
   } else {
     const recency = pickRecencyStatus(daysSince);
     setPill(flagPill, recency.kind, recency.text);
+    setDecisionCardTone(recency.kind);
     if (canSupplyEl) {
       canSupplyEl.textContent = 'Add tablets/day to calculate “can supply on” date.';
     }
@@ -281,7 +331,7 @@ const analyzeAndRender = () => {
       freqStatus,
       `Could not parse: ${errors.slice(0, 5).join(', ')}${
         errors.length > 5 ? ` +${errors.length - 5} more` : ''
-      }`
+      }`,
     );
   } else {
     setStatus(freqStatus, '');
@@ -303,7 +353,7 @@ const analyzeAndRender = () => {
     qty,
     perDay,
     bufferDays: buffer,
-    today
+    today,
   });
 
   freqOutput.innerHTML = '';
@@ -329,7 +379,7 @@ const analyzeAndRender = () => {
     `Intervals: ${analysis.gaps.length} gaps`,
     `Average gap: ${analysis.averageGap.toFixed(1)} days`,
     `Median gap: ${analysis.medianGap.toFixed(1)} days`,
-    `Range: ${analysis.minGap}–${analysis.maxGap} days`
+    `Range: ${analysis.minGap}–${analysis.maxGap} days`,
   ];
 
   baseItems.forEach((text) => {
@@ -389,7 +439,7 @@ const copyShareLink = async () => {
     date: dateInput.value.trim(),
     amount: amountInput.value.trim(),
     perDay: perDayInput.value.trim(),
-    buffer: bufferInput.value.trim()
+    buffer: bufferInput.value.trim(),
   };
 
   const url = buildShareUrl(window.location.href, state, String(DEFAULT_BUFFER));

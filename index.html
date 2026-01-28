@@ -26,8 +26,8 @@
               <p class="label">Pharmacy utility</p>
               <h1 class="text-2xl font-semibold sm:text-3xl">Days Since for Pharmacists</h1>
               <p class="muted mt-2 max-w-xl text-sm">
-                Quick dispense checks, supply estimates, and history analysis — all offline and shareable with
-                URLs.
+                Quick dispense checks, supply estimates, and history analysis — all offline and
+                shareable with URLs.
               </p>
             </div>
           </div>
@@ -40,15 +40,15 @@
         </div>
       </header>
 
-      <main class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+      <main class="space-y-6">
         <section class="card reveal reveal-delay-1">
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p class="label">Primary calculator</p>
               <h2 class="text-xl font-semibold">Days since last dispense</h2>
               <p class="muted mt-2 text-sm">
-                Enter the last dispense date. Optional tablet amount + daily rate unlock supply estimates and
-                early/OK logic.
+                Enter the last dispense date. Optional tablet amount + daily rate unlock supply
+                estimates and early/OK logic.
               </p>
             </div>
             <div class="pill pill-good">Shareable URLs enabled</div>
@@ -72,11 +72,25 @@
             </label>
             <label class="space-y-2 text-sm" for="amount">
               <span class="label">Tablets supplied</span>
-              <input id="amount" class="input" type="number" min="0" step="1" placeholder="e.g. 60" />
+              <input
+                id="amount"
+                class="input"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="e.g. 60"
+              />
             </label>
             <label class="space-y-2 text-sm" for="perDay">
               <span class="label">Tablets per day</span>
-              <input id="perDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
+              <input
+                id="perDay"
+                class="input"
+                type="number"
+                min="0"
+                step="0.5"
+                placeholder="e.g. 2"
+              />
             </label>
             <label class="space-y-2 text-sm" for="buffer">
               <span class="label">Early supply buffer (days)</span>
@@ -92,7 +106,9 @@
 
           <div id="output" class="mt-8 space-y-6" hidden aria-live="polite">
             <div class="grid gap-4 sm:grid-cols-[1.1fr_0.9fr]">
-              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+              <div
+                class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50"
+              >
                 <p class="label">Days since</p>
                 <div class="mt-3 flex items-end justify-between gap-3">
                   <span id="daysValue" class="text-4xl font-semibold">0</span>
@@ -101,17 +117,24 @@
                 <p id="parsedValue" class="muted mt-3 text-sm">Parsed as</p>
               </div>
 
-              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+              <div
+                id="decisionCard"
+                class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm transition-colors dark:border-slate-700/60 dark:bg-slate-950/50"
+              >
                 <p class="label">Supply decision</p>
                 <div class="mt-3 flex flex-wrap items-center gap-2">
                   <span id="flagPill" class="pill pill-warn">Add tablets/day to judge supply</span>
                 </div>
-                <p id="canSupply" class="muted mt-3 text-sm">Add tablets/day to calculate “can supply on” date.</p>
+                <p id="canSupply" class="muted mt-3 text-sm">
+                  Add tablets/day to calculate “can supply on” date.
+                </p>
               </div>
             </div>
 
             <div id="medSection" class="grid gap-4 sm:grid-cols-2" hidden>
-              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+              <div
+                class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50"
+              >
                 <p class="label">Days remaining</p>
                 <div class="mt-3 flex items-end justify-between gap-3">
                   <span id="daysLeftValue" class="text-4xl font-semibold">0</span>
@@ -119,32 +142,47 @@
                 </div>
                 <p id="runoutValue" class="muted mt-3 text-sm">Run-out date:</p>
               </div>
-              <div class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+              <div
+                class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50"
+              >
                 <p class="label">Supply gauge</p>
                 <div class="mt-3 flex flex-wrap items-center gap-2">
                   <span id="supplyPill" class="pill pill-good">~0 days supply</span>
                   <span id="percentPill" class="pill pill-warn">0% remaining</span>
                 </div>
-                <div class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800">
-                  <div id="percentBar" class="h-full rounded-full bg-slate-900 dark:bg-slate-100" style="width: 0%"></div>
+                <div
+                  class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800"
+                >
+                  <div
+                    id="percentBar"
+                    class="h-full rounded-full bg-slate-900 dark:bg-slate-100"
+                    style="width: 0%"
+                  ></div>
                 </div>
               </div>
             </div>
 
-            <div id="gaugeSection" class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50" hidden>
+            <div
+              id="gaugeSection"
+              class="rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50"
+              hidden
+            >
               <p class="label">Estimate details</p>
-              <ul id="medDetails" class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200"></ul>
+              <ul
+                id="medDetails"
+                class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200"
+              ></ul>
             </div>
           </div>
         </section>
 
         <section class="card reveal reveal-delay-2">
           <div>
-            <p class="label">History analyzer</p>
-            <h2 class="text-xl font-semibold">Dispense frequency + ledger</h2>
+            <p class="label">Optional (but powerful)</p>
+            <h2 class="text-xl font-semibold">Dispense history timeline</h2>
             <p class="muted mt-2 text-sm">
-              Paste multiple dispense dates to find intervals, early fills, and projected tablet balance.
-              Separate dates with commas, spaces, or new lines.
+              Paste multiple dispense dates to see the gaps and a big visual timeline. Add quantity
+              + tablets/day to highlight early vs OK intervals.
             </p>
           </div>
 
@@ -162,17 +200,40 @@
             <div class="grid gap-4 sm:grid-cols-2">
               <label class="space-y-2 text-sm" for="freqQty">
                 <span class="label">Quantity per dispense</span>
-                <input id="freqQty" class="input" type="number" min="0" step="1" placeholder="e.g. 28" />
+                <input
+                  id="freqQty"
+                  class="input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="e.g. 28"
+                />
               </label>
               <label class="space-y-2 text-sm" for="freqPerDay">
                 <span class="label">Tablets per day</span>
-                <input id="freqPerDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
+                <input
+                  id="freqPerDay"
+                  class="input"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  placeholder="e.g. 2"
+                />
               </label>
               <label class="space-y-2 text-sm" for="freqBuffer">
                 <span class="label">Early buffer (days)</span>
-                <input id="freqBuffer" class="input" type="number" min="0" step="1" placeholder="9" />
+                <input
+                  id="freqBuffer"
+                  class="input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="9"
+                />
               </label>
-              <label class="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-3 text-sm shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50">
+              <label
+                class="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-3 text-sm shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50"
+              >
                 <input id="freqAsOfToday" type="checkbox" class="h-4 w-4" checked />
                 <span>Project balance to today</span>
               </label>
@@ -184,16 +245,54 @@
             </div>
           </div>
 
+          <div id="freqTimeline" class="mt-6" hidden></div>
           <div id="freqOutput" class="mt-6 space-y-3" hidden aria-live="polite"></div>
           <p id="intervalsText" class="muted mt-4 text-xs"></p>
-          <div id="freqTimeline" class="mt-4 space-y-2" hidden></div>
         </section>
       </main>
 
-      <footer class="text-xs text-slate-500 dark:text-slate-400">
+      <footer class="space-y-6 text-xs text-slate-500 dark:text-slate-400">
+        <details class="card">
+          <summary class="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Want to use this faster? Set up a browser shortcut (address bar command)
+          </summary>
+          <div class="mt-4 space-y-3 text-sm text-slate-700 dark:text-slate-200">
+            <p class="muted">
+              You can make your address bar work like a command. After setup you can type something
+              like:
+              <span class="pill pill-good">ds 25/06 60 2</span>
+            </p>
+            <ol class="list-decimal space-y-2 pl-5">
+              <li>
+                Open <b>Chrome/Edge Settings</b> → <b>Search engine</b> →
+                <b>Manage search engines</b>.
+              </li>
+              <li>Click <b>Add</b>.</li>
+              <li>Name: <b>Days Since</b></li>
+              <li>Shortcut/Keyword: <b>ds</b></li>
+              <li>
+                URL:
+                <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code>
+              </li>
+            </ol>
+            <div class="divider"></div>
+            <div class="space-y-2">
+              <p class="label">Examples</p>
+              <ul class="list-disc space-y-1 pl-5">
+                <li><b>Basic:</b> <code>ds 25/06</code> (or <code>ds 2506</code>)</li>
+                <li><b>With meds:</b> <code>ds 25/06 60 2</code> (amount, per day)</li>
+                <li>
+                  <b>Optional buffer:</b> <code>ds 25/06 60 2</code> then add
+                  <code>&amp;buffer=9</code> to the URL
+                </li>
+              </ul>
+            </div>
+          </div>
+        </details>
+
         <p>
-          100% client-side. No data is stored or transmitted. Shareable URLs only include the fields you
-          enter.
+          100% client-side. No data is stored or transmitted. Shareable URLs only include the fields
+          you enter.
         </p>
       </footer>
     </div>

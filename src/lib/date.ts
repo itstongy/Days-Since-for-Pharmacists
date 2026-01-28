@@ -35,13 +35,11 @@ export function parseFlexibleDate(raw: string, today = new Date()): ParseDateRes
     mm = Number(digits.slice(2, 4));
     yyRaw = digits.length > 4 ? digits.slice(4) : undefined;
   } else {
-    const match = input.match(
-      /^\s*(\d{1,2})\s*[/\-. ]\s*(\d{1,2})(?:\s*[/\-. ]\s*(\d{2,4}))?\s*$/
-    );
+    const match = input.match(/^\s*(\d{1,2})\s*[/\-. ]\s*(\d{1,2})(?:\s*[/\-. ]\s*(\d{2,4}))?\s*$/);
     if (!match) {
       return {
         ok: false,
-        error: 'Use DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM(YY)(YYYY).'
+        error: 'Use DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM(YY)(YYYY).',
       };
     }
     dd = Number(match[1]);
@@ -86,7 +84,10 @@ export function parseFlexibleDate(raw: string, today = new Date()): ParseDateRes
   return { ok: true, date: parsed, inferredYear, input };
 }
 
-export function parseManyDates(text: string, today = new Date()): { dates: Date[]; errors: string[] } {
+export function parseManyDates(
+  text: string,
+  today = new Date(),
+): { dates: Date[]; errors: string[] } {
   const tokens = (text || '')
     .split(/[\n,]+/)
     .flatMap((line) => line.trim().split(/\s+/))

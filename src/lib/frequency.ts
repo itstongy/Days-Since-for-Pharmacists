@@ -44,7 +44,7 @@ export function analyzeFrequency(params: {
       expectedGap: null,
       okThreshold: null,
       balanceAtLastDate: null,
-      balanceAsOfToday: null
+      balanceAsOfToday: null,
     };
   }
 
@@ -101,6 +101,6 @@ export function analyzeFrequency(params: {
     expectedGap,
     okThreshold,
     balanceAtLastDate,
-    balanceAsOfToday
+    balanceAsOfToday,
   };
 }

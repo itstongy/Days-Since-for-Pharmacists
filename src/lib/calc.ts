@@ -87,15 +87,11 @@ export function computeSupplyMetrics(params: {
     daysLeft,
     percentRemaining,
     percentStatus,
-    dueStatus
+    dueStatus,
   };
 }
 
-export function computeCanSupplyDate(
-  today: Date,
-  daysLeft: number,
-  bufferDays: number
-): CanSupply {
+export function computeCanSupplyDate(today: Date, daysLeft: number, bufferDays: number): CanSupply {
   const buffer = Number.isFinite(bufferDays) ? bufferDays : 9;
   const daysUntilOk = Math.max(0, daysLeft - buffer);
   const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilOk);

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { computeCanSupplyDate, computeSupplyMetrics, pickRecencyStatus, supplyDecision } from './calc';
+import {
+  computeCanSupplyDate,
+  computeSupplyMetrics,
+  pickRecencyStatus,
+  supplyDecision,
+} from './calc';
 import { formatDate } from './date';
 
 describe('computeSupplyMetrics', () => {
