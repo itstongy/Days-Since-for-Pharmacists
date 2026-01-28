@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - modernize/web-tech
   workflow_dispatch:
 
 permissions:
