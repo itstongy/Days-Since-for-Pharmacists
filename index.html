@@ -94,9 +94,14 @@
     .theme-dark body::before { opacity: 0.02; }
 
     .wrap {
-      max-width: 920px;
+      max-width: 1240px;
       margin: 0 auto;
       padding: 28px 16px 64px;
+    }
+
+    /* On very wide screens, use a bit more horizontal space */
+    @media (min-width: 1400px) {
+      .wrap { max-width: 1360px; }
     }
 
     h1 {
