@@ -75,31 +75,6 @@ This tool runs entirely in your browser. **No data is saved, stored, or sent any
 - `?s=25/06 30 1` (date, amount, per‑day)
 - `?date=25/06/2025&amount=30&perDay=1&buffer=9`
 
-## Handy browser `%s` shortcuts (for a new store setup)
-These are simple Chrome/Edge “search engines” you can add (Settings → Search engine → Manage search engines → Add).
-
-- **Days Since (this tool)**
-  - Keyword: `ds`
-  - URL: `https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s`
-
-- **Chemist Warehouse (price match)**
-  - Keyword: `cw`
-  - URL: `https://www.chemistwarehouse.com.au/search?searchtext=%s`
-
-- **PBS search**
-  - Keyword: `pbs`
-  - URL: `https://www.pbs.gov.au/pbs/search?term=%s`
-
-- **TGA Medicine Shortages**
-  - Keyword: `short`
-  - URL: `https://apps.tga.gov.au/Prod/msi/Search?searchTerm=%s`
-
-- **NPS Medicine Finder**
-  - Keyword: `nps`
-  - URL: `https://www.nps.org.au/medicine-finder/search?query=%s`
-
-> AMH / eMIMS URLs vary depending on account/login. The easiest way is to search once, copy the results URL, and use that as your `%s` template.
-
 ## Run locally
 Open `index.html` in a browser, or serve locally:
 ```bash
