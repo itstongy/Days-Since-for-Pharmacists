@@ -351,12 +351,22 @@
       return { cls: 'bad', text: '—' };
     }
 
-    function pickupFlag(daysLeft) {
-      // Requested: ✅ if they have <9 days to go, ❌ otherwise
-      if (daysLeft == null) return { cls: 'warn', text: 'Enter tablets to show ✅/❌' };
-      if (daysLeft < 9 && daysLeft >= 0) return { cls: 'good', text: '✅ < 9 days left' };
-      if (daysLeft < 0) return { cls: 'bad', text: '❌ already overdue' };
-      return { cls: 'bad', text: '❌ ≥ 9 days left' };
+    function supplyDecision(daysLeft, bufferDays) {
+      // Goal: at a glance, is it reasonable to SUPPLY today?
+      // - ✅ if due soon (within buffer) OR overdue (ran out already)
+      // - ❌ if too early (they should still have plenty left)
+      // - ⚠️ if inputs are missing
+      if (daysLeft == null) return { cls: 'warn', text: 'Add tablets/day to judge supply' };
+
+      const b = Number.isFinite(bufferDays) ? bufferDays : 7;
+
+      if (daysLeft < 0) {
+        return { cls: 'good', text: `✅ Overdue by ${Math.abs(daysLeft)}d (OK to supply)` };
+      }
+      if (daysLeft <= b) {
+        return { cls: 'good', text: `✅ Due soon (${daysLeft}d left)` };
+      }
+      return { cls: 'bad', text: `❌ Too early (${daysLeft}d left)` };
     }
 
     function setPill(el, cls, text) {
@@ -461,9 +471,11 @@
         gaugeCard.style.display = 'none';
       }
 
-      // Flag pill: ✅/❌ based on days left when med inputs are present; fallback otherwise.
+      // Flag pill: supply decision based on days left when med inputs are present.
       if (amount != null && perDay != null && perDay > 0) {
-        const f = pickupFlag(daysLeftForFlag);
+        const params = new URLSearchParams(location.search);
+        const buffer = parseNumber(params.get('buffer'));
+        const f = supplyDecision(daysLeftForFlag, buffer == null ? 7 : buffer);
         setPill(document.querySelector('#flag'), f.cls, f.text);
       } else {
         const st = pickStatus(days);
