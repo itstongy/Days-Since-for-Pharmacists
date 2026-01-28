@@ -32,6 +32,11 @@
       --pastel-med-border: #c7f0dc;
       --pastel-gauge-bg: linear-gradient(180deg, #f5f3ff, #ffffff 75%);
       --pastel-gauge-border: #e7ddff;
+
+      --timeline-dot: #0f172a;
+      --timeline-dot-stroke: #ffffff;
+      --timeline-base: #cbd5e1;
+      --timeline-neutral: #94a3b8;
     }
 
     .theme-dark {
@@ -58,6 +63,11 @@
       --pastel-med-border: #1f5f4f;
       --pastel-gauge-bg: linear-gradient(180deg, #1a1333, #0f172a 75%);
       --pastel-gauge-border: #3a2a6b;
+
+      --timeline-dot: #e2e8f0;
+      --timeline-dot-stroke: #0f172a;
+      --timeline-base: #334155;
+      --timeline-neutral: #64748b;
     }
 
     body {
@@ -1119,16 +1129,16 @@
             <div class="callout-title">Timeline</div>
             <div class="sub" style="margin-bottom:8px;">Green = OK gap. Red = early (based on qty/perDay and buffer).</div>
             <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="dispense timeline">
-              <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" />
+              <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="var(--timeline-base)" stroke-width="6" stroke-linecap="round" />
               ${segments.map(s => `
                 <line x1="${s.x1}" y1="${y}" x2="${s.x2}" y2="${y}" stroke="${s.col}" stroke-width="6" stroke-linecap="round" />
-                <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="#475569">${s.label}</text>
+                <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="var(--muted)">${s.label}</text>
               `).join('')}
               ${dots.map(d => `
-                <circle cx="${d.x}" cy="${y}" r="7" fill="#0f172a" />
+                <circle cx="${d.x}" cy="${y}" r="7" fill="var(--timeline-dot)" stroke="var(--timeline-dot-stroke)" stroke-width="2" />
               `).join('')}
-              <text x="${leftPad}" y="${h - 10}" font-size="11" fill="#475569">${formatDate(first)}</text>
-              <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="#475569">${formatDate(last)}</text>
+              <text x="${leftPad}" y="${h - 10}" font-size="11" fill="var(--muted)">${formatDate(first)}</text>
+              <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="var(--muted)">${formatDate(last)}</text>
             </svg>
           `;
 
@@ -1138,14 +1148,14 @@
               <div class="callout-title">Timeline</div>
               <div class="sub" style="margin-bottom:8px;">Enter quantity + tablets/day to colour early vs OK.</div>
               <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="dispense timeline">
-                <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" />
+                <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="var(--timeline-base)" stroke-width="6" stroke-linecap="round" />
                 ${segments.map(s => `
-                  <line x1="${s.x1}" y1="${y}" x2="${s.x2}" y2="${y}" stroke="#94a3b8" stroke-width="6" stroke-linecap="round" />
-                  <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="#475569">${s.label}</text>
+                  <line x1="${s.x1}" y1="${y}" x2="${s.x2}" y2="${y}" stroke="var(--timeline-neutral)" stroke-width="6" stroke-linecap="round" />
+                  <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="var(--muted)">${s.label}</text>
                 `).join('')}
-                ${dots.map(d => `<circle cx="${d.x}" cy="${y}" r="7" fill="#0f172a" />`).join('')}
-                <text x="${leftPad}" y="${h - 10}" font-size="11" fill="#475569">${formatDate(first)}</text>
-                <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="#475569">${formatDate(last)}</text>
+                ${dots.map(d => `<circle cx="${d.x}" cy="${y}" r="7" fill="var(--timeline-dot)" stroke="var(--timeline-dot-stroke)" stroke-width="2" />`).join('')}
+                <text x="${leftPad}" y="${h - 10}" font-size="11" fill="var(--muted)">${formatDate(first)}</text>
+                <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="var(--muted)">${formatDate(last)}</text>
               </svg>
             `;
           } else {
