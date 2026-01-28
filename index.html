@@ -132,6 +132,14 @@
 
     button:hover { filter: brightness(0.99); }
 
+    /* Small quick-fill buttons */
+    .chip {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      background: #fff;
+    }
+
     .statusline {
       color: var(--muted);
       font-size: 13px;
@@ -220,6 +228,29 @@
         </div>
       </div>
 
+      <div class="row" style="margin-top: 10px;">
+        <div style="flex: 1 1 260px;">
+          <label for="buffer">Early supply buffer (days)</label>
+          <div class="row" style="gap: 12px;">
+            <input id="buffer" type="range" min="0" max="21" step="1" value="7" />
+            <span class="pill" id="bufferVal">7 days</span>
+          </div>
+          <div class="sub" style="margin-top:6px;">✅ if due within buffer (or overdue). ❌ if too early.</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 12px;">
+        <span class="sub" style="min-width: 100%;">Quick fill (optional):</span>
+        <button class="chip" type="button" data-set="amount" data-val="28">28</button>
+        <button class="chip" type="button" data-set="amount" data-val="30">30</button>
+        <button class="chip" type="button" data-set="amount" data-val="56">56</button>
+        <button class="chip" type="button" data-set="amount" data-val="84">84</button>
+        <span class="sub">|</span>
+        <button class="chip" type="button" data-set="perDay" data-val="0.5">0.5/day</button>
+        <button class="chip" type="button" data-set="perDay" data-val="1">1/day</button>
+        <button class="chip" type="button" data-set="perDay" data-val="2">2/day</button>
+      </div>
+
       <div class="row" style="margin-top: 12px;">
         <button id="calc">Calculate</button>
         <button id="copy">Copy link</button>
@@ -246,6 +277,7 @@
             <span class="pill" id="due">—</span>
           </div>
           <div class="sub" id="runout" style="margin-top: 10px;">—</div>
+          <div class="sub" id="canGet" style="margin-top: 6px;">—</div>
         </div>
 
         <div class="card card-gauge" id="gaugeCard" style="display:none;">
@@ -261,11 +293,31 @@
     </div>
 
     <div class="card">
-      <div class="sub" style="margin-bottom: 6px;">Search engine shortcut usage</div>
+      <div class="sub" style="margin-bottom: 6px;">Use it like a search engine (fastest)</div>
+      <p class="sub" style="margin-top:0;">
+        You can set a browser keyword so you can type something like <code>ds 25/06 30 1</code> and instantly get the result.
+      </p>
       <ul>
-        <li>Query param: <code>?s=25/06</code> or <code>?s=25/06/2025</code></li>
-        <li>With tablets: <code>?s=25/06 30 1</code> (date, amount, per-day)</li>
-        <li>Also supports: <code>?date=...</code>, <code>?amount=...</code>, <code>?perDay=...</code></li>
+        <li><b>Format:</b> <code>DD/MM</code> or <code>DD/MM/YY</code> or <code>DD/MM/YYYY</code></li>
+        <li><b>Optional meds:</b> add <code>amount</code> then <code>perDay</code> (e.g. <code>25/06 60 2</code>)</li>
+        <li><b>Optional buffer:</b> add <code>&amp;buffer=7</code> to the URL (default 7)</li>
+      </ul>
+      <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">URL formats supported:</p>
+      <ul>
+        <li><code>?s=25/06</code> or <code>?s=25/06/2025</code></li>
+        <li><code>?s=25/06 30 1</code> (date, amount, per-day)</li>
+        <li><code>?date=25/06/2025&amp;amount=30&amp;perDay=1&amp;buffer=7</code></li>
+      </ul>
+      <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">How to set up a browser shortcut (Chrome / Edge):</p>
+      <ul>
+        <li>Open browser settings → <b>Search engine</b> → <b>Manage search engines</b>.</li>
+        <li>Click <b>Add</b>.</li>
+        <li>Name: <code>Days Since</code></li>
+        <li>Shortcut/Keyword: <code>ds</code></li>
+        <li>URL: paste the page URL with <code>?s=%s</code> on the end.
+          <br/>Example: <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code>
+        </li>
+        <li>Now in the address bar type: <code>ds 25/06 30 1</code> → Enter.</li>
       </ul>
     </div>
   </div>
@@ -383,6 +435,11 @@
       const amountRaw = document.querySelector('#amount').value;
       const perDayRaw = document.querySelector('#perDay').value;
 
+      // buffer UI label
+      const bufferEl = document.querySelector('#buffer');
+      const bufferValEl = document.querySelector('#bufferVal');
+      if (bufferEl && bufferValEl) bufferValEl.textContent = `${bufferEl.value} days`;
+
       const p = parseFlexibleDate(dateRaw);
       const statusEl = document.querySelector('#status');
 
@@ -471,15 +528,27 @@
         gaugeCard.style.display = 'none';
       }
 
-      // Flag pill: supply decision based on days left when med inputs are present.
+      // Supply decision + "can get on" date
+      const bufferUi = parseNumber(document.querySelector('#buffer')?.value);
+      const buffer = (bufferUi == null ? 7 : bufferUi);
+
       if (amount != null && perDay != null && perDay > 0) {
-        const params = new URLSearchParams(location.search);
-        const buffer = parseNumber(params.get('buffer'));
-        const f = supplyDecision(daysLeftForFlag, buffer == null ? 7 : buffer);
+        const f = supplyDecision(daysLeftForFlag, buffer);
         setPill(document.querySelector('#flag'), f.cls, f.text);
+
+        const canGetEl = document.querySelector('#canGet');
+        const daysUntilOk = Math.max(0, (daysLeftForFlag - buffer));
+        const okDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilOk);
+        if (daysUntilOk === 0) {
+          canGetEl.textContent = 'Can supply: today';
+        } else {
+          canGetEl.textContent = `Can supply on: ${formatDate(startOfDay(okDate))} (in ${daysUntilOk}d)`;
+        }
       } else {
         const st = pickStatus(days);
         setPill(document.querySelector('#flag'), st.cls, st.text);
+        const canGetEl = document.querySelector('#canGet');
+        if (canGetEl) canGetEl.textContent = 'Add tablets/day to calculate “can supply on” date.';
       }
 
       statusEl.textContent = '';
@@ -501,9 +570,15 @@
       const date = params.get('date');
       const amount = params.get('amount');
       const perDay = params.get('perDay');
+      const buffer = params.get('buffer');
       if (date) document.querySelector('#date').value = date;
       if (amount) document.querySelector('#amount').value = amount;
       if (perDay) document.querySelector('#perDay').value = perDay;
+      if (buffer && document.querySelector('#buffer')) document.querySelector('#buffer').value = buffer;
+
+      const bufferEl = document.querySelector('#buffer');
+      const bufferValEl = document.querySelector('#bufferVal');
+      if (bufferEl && bufferValEl) bufferValEl.textContent = `${bufferEl.value} days`;
 
       if (document.querySelector('#date').value.trim()) {
         compute();
@@ -514,11 +589,13 @@
       const date = document.querySelector('#date').value.trim();
       const amount = document.querySelector('#amount').value.trim();
       const perDay = document.querySelector('#perDay').value.trim();
+      const buffer = document.querySelector('#buffer')?.value;
 
       const tokens = [date, amount, perDay].filter(Boolean).join(' ');
       const url = new URL(location.href);
       url.search = '';
       if (tokens) url.searchParams.set('s', tokens);
+      if (buffer && buffer !== '7') url.searchParams.set('buffer', buffer);
       return url.toString();
     }
 
@@ -532,6 +609,27 @@
         document.querySelector('#status').textContent = url;
       }
     });
+
+    // Quick-fill buttons
+    document.querySelectorAll('button.chip').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-set');
+        const val = btn.getAttribute('data-val');
+        const input = document.querySelector('#' + key);
+        if (input) input.value = val;
+        compute();
+      });
+    });
+
+    // Buffer slider updates
+    const bufferEl = document.querySelector('#buffer');
+    const bufferValEl = document.querySelector('#bufferVal');
+    if (bufferEl && bufferValEl) {
+      bufferEl.addEventListener('input', () => {
+        bufferValEl.textContent = `${bufferEl.value} days`;
+      });
+      bufferEl.addEventListener('change', compute);
+    }
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') compute();
