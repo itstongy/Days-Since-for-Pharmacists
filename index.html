@@ -416,6 +416,10 @@
 
           <div class="row" style="margin-top: 10px;">
             <button id="analyze" type="button">Analyze frequency</button>
+            <label class="row" style="gap:8px; margin-left: 6px;">
+              <input id="freqAsOfToday" type="checkbox" />
+              <span class="sub">Also project net tablets to today</span>
+            </label>
             <span class="statusline" id="freqStatus"></span>
           </div>
 
@@ -888,8 +892,10 @@
         const okThreshold = (expectedDays != null) ? Math.max(0, expectedDays - buffer) : null;
 
         // Stock ledger (assumes starting balance 0 at first date)
-        let balanceAfterLastDispense = null;
-        let balanceToday = null;
+        // We report balance at LAST DISPENSE DATE by default (not "today"), so old histories don't go massively negative.
+        // Optionally we can also show an "as of today" projection.
+        let balanceAtLastDate = null;
+        let balanceAsOfToday = null;
         if (qty != null && perDay != null && perDay > 0) {
           let bal = 0;
           for (let i = 0; i < dates.length; i++) {
@@ -899,9 +905,9 @@
               bal -= gap * perDay;
             }
           }
-          balanceAfterLastDispense = bal;
+          balanceAtLastDate = bal;
           const sinceLast = daysBetween(last, startOfDay(new Date()));
-          balanceToday = bal - sinceLast * perDay;
+          balanceAsOfToday = bal - sinceLast * perDay;
         }
 
         // Render summary
@@ -910,10 +916,17 @@
           extra.push(`<li><b>Expected gap:</b> ${expectedDays.toFixed(1)} days (qty/perDay)</li>`);
           extra.push(`<li><b>Early threshold:</b> &lt; ${okThreshold.toFixed(1)} days = early</li>`);
         }
-        if (balanceToday != null) {
-          const label = balanceToday >= 0 ? 'Net tablets (est.)' : 'Net tablets (est.)';
-          const cls = balanceToday >= 0 ? 'good' : 'bad';
-          extra.push(`<li><b>${label} today:</b> <span class="pill ${cls}">${balanceToday.toFixed(0)}</span></li>`);
+        if (balanceAtLastDate != null) {
+          const cls = balanceAtLastDate >= 0 ? 'good' : 'bad';
+          extra.push(`<li><b>Net tablets (est.) at last dispense date:</b> <span class="pill ${cls}">${balanceAtLastDate.toFixed(0)}</span></li>`);
+          extra.push(`<li class="sub">Assumes only the supplies listed (starting balance = 0 at first date).</li>`);
+
+          // Optional projection to today (can be useful when the last date is recent)
+          const showToday = document.querySelector('#freqAsOfToday')?.checked;
+          if (showToday && balanceAsOfToday != null) {
+            const cls2 = balanceAsOfToday >= 0 ? 'good' : 'bad';
+            extra.push(`<li><b>Projected net tablets today:</b> <span class="pill ${cls2}">${balanceAsOfToday.toFixed(0)}</span></li>`);
+          }
         }
 
         out.innerHTML = `
