@@ -18,12 +18,13 @@ Fast, simple, and private. **Days Since for Pharmacists** is a lightweight web t
 - Calculates **days since** a date
 - Estimates **days of medication supply** if you enter amount + tablets per day
 - Flags **OK to supply vs too early** based on an early‑supply buffer
-- **Dispense frequency** view: paste multiple dispense dates to see average gap + a colour timeline (green OK / red early)
+- Shows **“can supply on”** date when tablets/day is provided
+- **Dispense history timeline**: paste multiple dispense dates to see average gap + a colour timeline (green OK / red early)
 - Optional **tablet ledger** projection (net balance at last date, plus today if toggled)
 
-## Dispense frequency + timeline view (multiple dates)
+## Dispense history timeline (multiple dates)
 
-Open **“Dispense frequency + ledger”** and paste dispense dates.
+Open **“Dispense history timeline”** and paste dispense dates.
 
 ![Timeline mode screenshot](assets/daySinceTimeline.png)
 

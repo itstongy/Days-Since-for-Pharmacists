@@ -3,7 +3,6 @@ import './style.css';
 import {
   computeCanSupplyDate,
   computeSupplyMetrics,
-  pickRecencyStatus,
   supplyDecision,
 } from './lib/calc';
 import { daysBetween, formatDate, parseFlexibleDate, parseManyDates, startOfDay } from './lib/date';
@@ -31,6 +30,7 @@ const daysPill = byId<HTMLSpanElement>('daysPill');
 const flagPill = byId<HTMLSpanElement>('flagPill');
 const canSupplyEl = byId<HTMLParagraphElement>('canSupply');
 const decisionCard = byId<HTMLDivElement>('decisionCard');
+const resultGrid = byId<HTMLDivElement>('resultGrid');
 
 const medSection = byId<HTMLDivElement>('medSection');
 const gaugeSection = byId<HTMLDivElement>('gaugeSection');
@@ -58,6 +58,7 @@ const themeToggle = byId<HTMLButtonElement>('themeToggle');
 const setHidden = (el: HTMLElement | null, hidden: boolean) => {
   if (!el) return;
   el.hidden = hidden;
+  el.classList.toggle('hidden', hidden);
 };
 
 const setPill = (el: HTMLElement | null, kind: 'good' | 'warn' | 'bad', text: string) => {
@@ -223,6 +224,8 @@ const computeAndRender = () => {
   const buffer = parseNumber(bufferInput.value) ?? DEFAULT_BUFFER;
 
   if (amount != null && perDay != null && perDay > 0 && medSection && gaugeSection) {
+    setHidden(decisionCard, false);
+    resultGrid?.classList.remove('single-card');
     const metrics = computeSupplyMetrics({ startDate, amount, perDay, today });
 
     if (daysLeftValue && runoutValue) {
@@ -274,12 +277,8 @@ const computeAndRender = () => {
     setHidden(medSection, false);
     setHidden(gaugeSection, false);
   } else {
-    const recency = pickRecencyStatus(daysSince);
-    setPill(flagPill, recency.kind, recency.text);
-    setDecisionCardTone(recency.kind);
-    if (canSupplyEl) {
-      canSupplyEl.textContent = 'Add tablets/day to calculate “can supply on” date.';
-    }
+    setHidden(decisionCard, true);
+    resultGrid?.classList.add('single-card');
     setHidden(medSection, true);
     setHidden(gaugeSection, true);
   }
