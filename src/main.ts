@@ -74,43 +74,12 @@ const setStatus = (el: HTMLElement | null, text: string) => {
 
 const setDecisionCardTone = (kind: 'good' | 'warn' | 'bad') => {
   if (!decisionCard) return;
-  decisionCard.classList.remove(
-    'border-emerald-300/70',
-    'bg-emerald-50/70',
-    'dark:border-emerald-500/40',
-    'dark:bg-emerald-950/30',
-    'border-amber-300/70',
-    'bg-amber-50/70',
-    'dark:border-amber-500/40',
-    'dark:bg-amber-950/30',
-    'border-rose-300/70',
-    'bg-rose-50/70',
-    'dark:border-rose-500/40',
-    'dark:bg-rose-950/30',
-  );
 
-  if (kind === 'good') {
-    decisionCard.classList.add(
-      'border-emerald-300/70',
-      'bg-emerald-50/70',
-      'dark:border-emerald-500/40',
-      'dark:bg-emerald-950/30',
-    );
-  } else if (kind === 'bad') {
-    decisionCard.classList.add(
-      'border-rose-300/70',
-      'bg-rose-50/70',
-      'dark:border-rose-500/40',
-      'dark:bg-rose-950/30',
-    );
-  } else {
-    decisionCard.classList.add(
-      'border-amber-300/70',
-      'bg-amber-50/70',
-      'dark:border-amber-500/40',
-      'dark:bg-amber-950/30',
-    );
-  }
+  decisionCard.classList.remove('decision-tone-good', 'decision-tone-warn', 'decision-tone-bad');
+
+  if (kind === 'good') decisionCard.classList.add('decision-tone-good');
+  else if (kind === 'bad') decisionCard.classList.add('decision-tone-bad');
+  else decisionCard.classList.add('decision-tone-warn');
 };
 
 const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | null) => {
