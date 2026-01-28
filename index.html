@@ -301,23 +301,30 @@
         <li><b>Optional meds:</b> add <code>amount</code> then <code>perDay</code> (e.g. <code>25/06 60 2</code>)</li>
         <li><b>Optional buffer:</b> add <code>&amp;buffer=9</code> to the URL (default 9)</li>
       </ul>
-      <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">URL formats supported:</p>
-      <ul>
-        <li><code>?s=25/06</code> or <code>?s=25/06/2025</code></li>
-        <li><code>?s=25/06 30 1</code> (date, amount, per-day)</li>
-        <li><code>?date=25/06/2025&amp;amount=30&amp;perDay=1&amp;buffer=7</code></li>
-      </ul>
-      <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">How to set up a browser shortcut (Chrome / Edge):</p>
-      <ul>
-        <li>Open browser settings → <b>Search engine</b> → <b>Manage search engines</b>.</li>
-        <li>Click <b>Add</b>.</li>
-        <li>Name: <code>Days Since</code></li>
-        <li>Shortcut/Keyword: <code>ds</code></li>
-        <li>URL: paste the page URL with <code>?s=%s</code> on the end.
-          <br/>Example: <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code>
-        </li>
-        <li>Now in the address bar type: <code>ds 25/06 30 1</code> → Enter.</li>
-      </ul>
+
+      <details style="margin-top: 10px;">
+        <summary style="cursor:pointer; color: var(--muted); font-size: 13px;">Advanced setup / browser shortcut</summary>
+        <div style="margin-top: 10px;">
+          <p class="sub" style="margin-top: 0; margin-bottom: 6px;">URL formats supported:</p>
+          <ul>
+            <li><code>?s=25/06</code> or <code>?s=25/06/2025</code></li>
+            <li><code>?s=25/06 30 1</code> (date, amount, per-day)</li>
+            <li><code>?date=25/06/2025&amp;amount=30&amp;perDay=1&amp;buffer=9</code></li>
+          </ul>
+
+          <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">How to set up a browser shortcut (Chrome / Edge):</p>
+          <ul>
+            <li>Open browser settings → <b>Search engine</b> → <b>Manage search engines</b>.</li>
+            <li>Click <b>Add</b>.</li>
+            <li>Name: <code>Days Since</code></li>
+            <li>Shortcut/Keyword: <code>ds</code></li>
+            <li>URL: paste the page URL with <code>?s=%s</code> on the end.
+              <br/>Example: <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code>
+            </li>
+            <li>Now in the address bar type: <code>ds 25/06 30 1</code> → Enter.</li>
+          </ul>
+        </div>
+      </details>
     </div>
   </div>
 
