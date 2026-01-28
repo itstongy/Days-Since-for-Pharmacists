@@ -3,81 +3,141 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>daysSince</title>
+  <title>Days Since (for Pharmacists)</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #0b0d12;
-      --fg: #e9edf1;
-      --muted: #9aa4af;
-      --card: #121725;
-      --border: #25304a;
-      --accent: #7aa2ff;
-      --good: #3ddc97;
-      --warn: #ffcc66;
-      --bad: #ff6b6b;
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --fg: #0f172a;
+      --muted: #475569;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      --accent: #2563eb;
+      --accent2: #0ea5e9;
+      --good: #16a34a;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --barbg: #eef2ff;
     }
+
     body {
       margin: 0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       background: var(--bg);
       color: var(--fg);
+      position: relative;
     }
+
+    /* Very subtle pharmacy-ish emoji background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Ctext x='18' y='60' font-size='28'%3E%F0%9F%92%8A%3C/text%3E%3Ctext x='150' y='110' font-size='26'%3E%F0%9F%92%89%3C/text%3E%3Ctext x='60' y='170' font-size='26'%3E%F0%9F%A9%BA%3C/text%3E%3Ctext x='170' y='200' font-size='24'%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E");
+      background-repeat: repeat;
+      filter: grayscale(100%);
+    }
+
     .wrap {
-      max-width: 860px;
+      max-width: 920px;
       margin: 0 auto;
-      padding: 24px 16px 48px;
+      padding: 24px 16px 56px;
     }
-    h1 { margin: 0 0 8px; font-size: 22px; }
-    p { margin: 0 0 16px; color: var(--muted); }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
 
     .card {
-      background: color-mix(in srgb, var(--card) 92%, transparent);
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 16px;
       margin: 16px 0;
+      box-shadow: var(--shadow);
     }
-
-    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    input {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--card) 86%, black);
-      color: var(--fg);
-      outline: none;
-    }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 
     .grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
     }
-    @media (min-width: 720px) {
+
+    @media (min-width: 780px) {
       .grid { grid-template-columns: 2fr 1fr 1fr; }
+      .grid.results { grid-template-columns: 1fr 1fr 1fr; }
     }
 
-    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--fg);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     button {
       padding: 10px 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--accent) 22%, var(--card));
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, #fff), #fff);
       color: var(--fg);
       cursor: pointer;
     }
-    button:hover { filter: brightness(1.05); }
+
+    button:hover { filter: brightness(0.99); }
+
+    .statusline {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .center {
+      text-align: center;
+    }
 
     .big {
-      font-size: 36px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin: 6px 0 8px;
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 6px 0 4px;
     }
-    .sub { color: var(--muted); }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+    }
 
     .pill {
       display: inline-flex;
@@ -88,10 +148,29 @@
       border: 1px solid var(--border);
       color: var(--muted);
       font-size: 13px;
+      background: #fff;
     }
-    .pill.good { border-color: color-mix(in srgb, var(--good) 45%, var(--border)); color: color-mix(in srgb, var(--good) 70%, var(--fg)); }
-    .pill.warn { border-color: color-mix(in srgb, var(--warn) 45%, var(--border)); color: color-mix(in srgb, var(--warn) 80%, var(--fg)); }
-    .pill.bad  { border-color: color-mix(in srgb, var(--bad) 45%, var(--border));  color: color-mix(in srgb, var(--bad) 85%, var(--fg)); }
+
+    .pill.good { border-color: color-mix(in srgb, var(--good) 40%, var(--border)); color: color-mix(in srgb, var(--good) 80%, #000); }
+    .pill.warn { border-color: color-mix(in srgb, var(--warn) 45%, var(--border)); color: color-mix(in srgb, var(--warn) 90%, #000); }
+    .pill.bad  { border-color: color-mix(in srgb, var(--bad) 45%, var(--border));  color: color-mix(in srgb, var(--bad) 90%, #000); }
+
+    .bar {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--barbg);
+      overflow: hidden;
+    }
+
+    .bar > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: width 180ms ease;
+    }
 
     code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -99,7 +178,7 @@
       padding: 2px 6px;
       border-radius: 6px;
       border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--card) 80%, black);
+      background: #fff;
     }
 
     ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
@@ -108,8 +187,8 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>daysSince</h1>
-    <p>Calculate days since a date (DD/MM, DD/MM/YY, DD/MM/YYYY) + optional medication supply maths.</p>
+    <h1>Days Since (for Pharmacists)</h1>
+    <p>Fast “days since” + optional supply calculation (date formats: DD/MM, DD/MM/YY, DD/MM/YYYY).</p>
 
     <div class="card">
       <div class="grid">
@@ -130,28 +209,40 @@
       <div class="row" style="margin-top: 12px;">
         <button id="calc">Calculate</button>
         <button id="copy">Copy link</button>
-        <span class="sub" id="status"></span>
+        <span class="statusline" id="status"></span>
       </div>
     </div>
 
-    <div class="card" id="out" style="display:none;">
-      <div class="row" style="justify-content: space-between; gap: 12px;">
-        <div>
+    <!-- Results: three cards -->
+    <div id="out" style="display:none;">
+      <div class="grid results">
+        <div class="card center">
+          <div class="sub" style="margin-bottom: 6px;">Days since</div>
           <div class="big" id="days">—</div>
-          <div class="sub" id="parsed">—</div>
+          <div class="row" style="justify-content:center; margin-top: 8px;">
+            <span class="pill" id="flag">—</span>
+          </div>
+          <div class="sub" id="parsed" style="margin-top: 10px;">—</div>
         </div>
-        <div class="row">
-          <span class="pill" id="flag">—</span>
-        </div>
-      </div>
 
-      <div id="med" style="margin-top: 12px; display:none;">
-        <div class="sub" style="margin-bottom: 6px;">Medication estimate</div>
-        <div class="row">
-          <span class="pill" id="supply">—</span>
-          <span class="pill" id="due">—</span>
+        <div class="card" id="medCard" style="display:none;">
+          <div class="sub" style="margin-bottom: 6px;">Days left (estimated)</div>
+          <div class="big" id="daysLeft">—</div>
+          <div class="row" style="margin-top: 8px;">
+            <span class="pill" id="due">—</span>
+          </div>
+          <div class="sub" id="runout" style="margin-top: 10px;">—</div>
         </div>
-        <ul id="medDetails"></ul>
+
+        <div class="card" id="gaugeCard" style="display:none;">
+          <div class="sub" style="margin-bottom: 6px;">Supply gauge</div>
+          <div class="bar" aria-label="supply gauge"><div id="barFill"></div></div>
+          <div class="row" style="justify-content: space-between; margin-top: 10px;">
+            <span class="pill" id="supply">—</span>
+            <span class="pill" id="pct">—</span>
+          </div>
+          <ul id="medDetails"></ul>
+        </div>
       </div>
     </div>
 
@@ -177,6 +268,8 @@
       const ms = startOfDay(b).getTime() - startOfDay(a).getTime();
       return Math.floor(ms / 86400000);
     }
+
+    function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
 
     function parseFlexibleDate(raw) {
       // Accept DD/MM, DD/MM/YY, DD/MM/YYYY
@@ -213,7 +306,6 @@
         const yNum = Number(yyRaw);
         if (yyRaw.length === 2) {
           // Interpret 2-digit years as 2000-2099.
-          // (If you ever need 19xx, we can add a toggle.)
           year = 2000 + yNum;
         } else {
           year = yNum;
@@ -225,12 +317,7 @@
         return { ok: false, error: 'That date does not exist.' };
       }
 
-      return {
-        ok: true,
-        date,
-        inferred,
-        input: s,
-      };
+      return { ok: true, date, inferred, input: s };
     }
 
     function parseNumber(raw) {
@@ -277,7 +364,7 @@
       const days = daysBetween(d, today);
 
       document.querySelector('#out').style.display = '';
-      document.querySelector('#days').textContent = `${days} day${Math.abs(days) === 1 ? '' : 's'}`;
+      document.querySelector('#days').textContent = `${days}`;
 
       const inferredNote = p.inferred ? ' (year inferred)' : '';
       document.querySelector('#parsed').textContent = `Parsed as ${formatDate(d)}${inferredNote}`;
@@ -285,37 +372,57 @@
       const st = pickStatus(days);
       setPill(document.querySelector('#flag'), st.cls, st.text);
 
-      // Medication section
+      // Medication cards
       const amount = parseNumber(amountRaw);
       const perDay = parseNumber(perDayRaw);
 
-      const medBox = document.querySelector('#med');
+      const medCard = document.querySelector('#medCard');
+      const gaugeCard = document.querySelector('#gaugeCard');
       const details = document.querySelector('#medDetails');
       details.innerHTML = '';
 
       if (amount != null && perDay != null && perDay > 0) {
-        medBox.style.display = '';
+        medCard.style.display = '';
+        gaugeCard.style.display = '';
 
         const daysSupply = amount / perDay;
-        const coveredDays = Math.floor(daysSupply);
-        const dueDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + coveredDays);
-        const daysUntilDue = daysBetween(today, dueDate);
+        const totalDays = Math.max(0, Math.floor(daysSupply));
+        const runoutDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + totalDays);
 
-        setPill(document.querySelector('#supply'), 'good', `~${daysSupply.toFixed(daysSupply < 10 ? 1 : 0)} days supply`);
+        const daysLeft = daysBetween(today, runoutDate); // runout - today
+
+        // Days left card
+        document.querySelector('#daysLeft').textContent = `${daysLeft}`;
+        document.querySelector('#runout').textContent = `Run-out date: ${formatDate(startOfDay(runoutDate))}`;
 
         let dueCls = 'good';
         let dueText = '';
-        if (daysUntilDue > 0) {
+        if (daysLeft > 0) {
           dueCls = 'good';
-          dueText = `Not due yet (${daysUntilDue}d remaining)`;
-        } else if (daysUntilDue === 0) {
+          dueText = `Not due yet (${daysLeft}d left)`;
+        } else if (daysLeft === 0) {
           dueCls = 'warn';
           dueText = 'Due today (by this estimate)';
         } else {
           dueCls = 'bad';
-          dueText = `Overdue by ${Math.abs(daysUntilDue)}d (by this estimate)`;
+          dueText = `Overdue by ${Math.abs(daysLeft)}d (by this estimate)`;
         }
         setPill(document.querySelector('#due'), dueCls, dueText);
+
+        // Gauge card
+        setPill(document.querySelector('#supply'), 'good', `~${daysSupply.toFixed(daysSupply < 10 ? 1 : 0)} days supply`);
+
+        // Percent remaining (based on whole-day supply)
+        const used = clamp(daysBetween(d, today), 0, totalDays);
+        const remaining = clamp(totalDays - used, 0, totalDays);
+        const pct = totalDays > 0 ? (remaining / totalDays) : 0;
+
+        document.querySelector('#barFill').style.width = `${(pct * 100).toFixed(0)}%`;
+
+        let pctCls = 'good';
+        if (pct <= 0.15) pctCls = 'bad';
+        else if (pct <= 0.35) pctCls = 'warn';
+        setPill(document.querySelector('#pct'), pctCls, `${(pct * 100).toFixed(0)}% remaining`);
 
         const li1 = document.createElement('li');
         li1.textContent = `Start date: ${formatDate(d)}`;
@@ -324,10 +431,11 @@
         const li3 = document.createElement('li');
         li3.textContent = `Rate: ${perDay} tablets/day`;
         const li4 = document.createElement('li');
-        li4.textContent = `Estimated run-out date: ${formatDate(startOfDay(dueDate))}`;
+        li4.textContent = `Estimated run-out: ${formatDate(startOfDay(runoutDate))}`;
         details.append(li1, li2, li3, li4);
       } else {
-        medBox.style.display = 'none';
+        medCard.style.display = 'none';
+        gaugeCard.style.display = 'none';
       }
 
       statusEl.textContent = '';
@@ -340,7 +448,6 @@
       const s = params.get('s') || params.get('q') || '';
 
       if (s) {
-        // tokenise: date [amount] [perDay]
         const parts = decodeURIComponent(s).trim().split(/\s+/);
         if (parts[0]) document.querySelector('#date').value = parts[0];
         if (parts[1]) document.querySelector('#amount').value = parts[1];
