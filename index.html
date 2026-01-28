@@ -216,7 +216,7 @@
       <div class="grid">
         <div>
           <label for="date">Date</label>
-          <input id="date" inputmode="numeric" placeholder="e.g. 25/06 or 25/06/25 or 25/06/2025" />
+          <input id="date" inputmode="numeric" placeholder="e.g. 25/06 or 2506 or 250625" />
         </div>
         <div>
           <label for="amount">Amount of tablets (optional)</label>
@@ -297,7 +297,7 @@
         You can set a browser keyword so you can type something like <code>ds 25/06 30 1</code> and instantly get the result.
       </p>
       <ul>
-        <li><b>Format:</b> <code>DD/MM</code> or <code>DD/MM/YY</code> or <code>DD/MM/YYYY</code></li>
+        <li><b>Date formats:</b> <code>DD/MM</code> or <code>DD/MM/YY</code> or <code>DD/MM/YYYY</code> or compact <code>DDMM</code>/<code>DDMMYY</code>/<code>DDMMYYYY</code> (e.g. <code>2701</code> or <code>270126</code>)</li>
         <li><b>Optional meds:</b> add <code>amount</code> then <code>perDay</code> (e.g. <code>25/06 60 2</code>)</li>
         <li><b>Optional buffer:</b> add <code>&amp;buffer=9</code> to the URL (default 9)</li>
       </ul>
@@ -344,14 +344,27 @@
     function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
 
     function parseFlexibleDate(raw) {
-      // Accept DD/MM, DD/MM/YY, DD/MM/YYYY
+      // Accept:
+      // - DD/MM, DD/MM/YY, DD/MM/YYYY
+      // - compact numeric: DDMM, DDMMYY, DDMMYYYY (e.g. 2701 => 27/01/[inferred])
       const s = (raw || '').trim();
-      const m = s.match(/^\s*(\d{1,2})\s*[\/\-\. ]\s*(\d{1,2})(?:\s*[\/\-\. ]\s*(\d{2,4}))?\s*$/);
-      if (!m) return { ok: false, error: 'Enter date as DD/MM, DD/MM/YY, or DD/MM/YYYY.' };
 
-      const dd = Number(m[1]);
-      const mm = Number(m[2]);
-      const yyRaw = m[3];
+      let dd, mm, yyRaw;
+
+      // Compact numeric first (helps with browser search keywords where '/' is awkward)
+      const compact = s.match(/^\s*(\d{4}|\d{6}|\d{8})\s*$/);
+      if (compact) {
+        const digits = compact[1];
+        dd = Number(digits.slice(0, 2));
+        mm = Number(digits.slice(2, 4));
+        yyRaw = digits.length > 4 ? digits.slice(4) : undefined;
+      } else {
+        const m = s.match(/^\s*(\d{1,2})\s*[\/\-\. ]\s*(\d{1,2})(?:\s*[\/\-\. ]\s*(\d{2,4}))?\s*$/);
+        if (!m) return { ok: false, error: 'Enter date as DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM(YY)(YYYY).' };
+        dd = Number(m[1]);
+        mm = Number(m[2]);
+        yyRaw = m[3];
+      }
 
       if (!(dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12)) {
         return { ok: false, error: 'Invalid day/month.' };
