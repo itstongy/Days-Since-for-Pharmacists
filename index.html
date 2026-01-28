@@ -170,6 +170,12 @@
       min-width: 0;
     }
 
+    textarea:focus {
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+      outline: none;
+    }
+
     button {
       padding: 10px 12px;
       border-radius: 12px;
@@ -383,6 +389,28 @@
 
     <div class="card">
       <details>
+        <summary style="cursor:pointer; color: var(--muted); font-size: 13px;">Dispense frequency (multiple dates)</summary>
+        <div style="margin-top: 10px;">
+          <p class="sub" style="margin-top: 0;">
+            Paste one dispense date per line. I’ll calculate the gaps between each dispense and show the average frequency.
+          </p>
+          <label for="historyDates">Dispense dates</label>
+          <textarea id="historyDates" rows="6" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background: var(--card); color: var(--fg);"
+            placeholder="Examples:\n2701\n1202\n1902\n\n(or 27/01/26 etc)"></textarea>
+
+          <div class="row" style="margin-top: 10px;">
+            <button id="analyze" type="button">Analyze frequency</button>
+            <span class="statusline" id="freqStatus"></span>
+          </div>
+
+          <div id="freqOut" class="callout" style="margin-top: 12px; display:none;"></div>
+          <div class="sub" style="margin-top: 10px;">Tip: you can also separate dates with commas or spaces.</div>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <details>
         <summary style="cursor:pointer; color: var(--muted); font-size: 13px;">Want to use me faster? Set up a browser shortcut</summary>
         <div style="margin-top: 10px;">
           <div class="callout">
@@ -445,6 +473,42 @@
     }
 
     function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
+
+    function median(nums) {
+      if (!nums.length) return null;
+      const a = [...nums].sort((x, y) => x - y);
+      const mid = Math.floor(a.length / 2);
+      return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+    }
+
+    function mean(nums) {
+      if (!nums.length) return null;
+      return nums.reduce((s, x) => s + x, 0) / nums.length;
+    }
+
+    function parseManyDates(text) {
+      // Accept newline, comma, or space separated tokens.
+      const tokens = (text || '')
+        .split(/[\n,]+/)
+        .flatMap((line) => line.trim().split(/\s+/))
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      const dates = [];
+      const errors = [];
+
+      for (const tok of tokens) {
+        const p = parseFlexibleDate(tok);
+        if (p.ok) dates.push(startOfDay(p.date));
+        else errors.push(tok);
+      }
+
+      // De-duplicate
+      const uniq = Array.from(new Map(dates.map((d) => [d.getTime(), d])).values());
+      uniq.sort((a, b) => a.getTime() - b.getTime());
+
+      return { dates: uniq, errors };
+    }
 
     function parseFlexibleDate(raw) {
       // Accept:
@@ -760,8 +824,64 @@
       bufferEl.addEventListener('blur', compute);
     }
 
+    // Dispense frequency analyzer
+    const analyzeBtn = document.querySelector('#analyze');
+    if (analyzeBtn) {
+      analyzeBtn.addEventListener('click', () => {
+        const text = document.querySelector('#historyDates')?.value || '';
+        const out = document.querySelector('#freqOut');
+        const status = document.querySelector('#freqStatus');
+        if (!out || !status) return;
+
+        const { dates, errors } = parseManyDates(text);
+        if (errors.length) {
+          status.textContent = `Could not parse: ${errors.slice(0, 5).join(', ')}${errors.length > 5 ? ` +${errors.length - 5} more` : ''}`;
+        } else {
+          status.textContent = '';
+        }
+
+        if (dates.length < 2) {
+          out.style.display = 'none';
+          status.textContent = status.textContent || 'Add at least 2 dates.';
+          return;
+        }
+
+        // gaps between consecutive dates (in days)
+        const gaps = [];
+        for (let i = 1; i < dates.length; i++) {
+          gaps.push(daysBetween(dates[i - 1], dates[i]));
+        }
+
+        const avg = mean(gaps);
+        const med = median(gaps);
+        const min = Math.min(...gaps);
+        const max = Math.max(...gaps);
+
+        const first = dates[0];
+        const last = dates[dates.length - 1];
+
+        out.innerHTML = `
+          <div class="callout-title">Dispense frequency summary</div>
+          <ul class="steps">
+            <li><b>Dates:</b> ${dates.length} (${formatDate(first)} → ${formatDate(last)})</li>
+            <li><b>Intervals:</b> ${gaps.length} gaps</li>
+            <li><b>Average gap:</b> ${avg.toFixed(1)} days</li>
+            <li><b>Median gap:</b> ${med.toFixed(1)} days</li>
+            <li><b>Range:</b> ${min}–${max} days</li>
+          </ul>
+          <div class="sub">Intervals used: ${gaps.join(', ')} days</div>
+        `;
+        out.style.display = '';
+      });
+    }
+
+    // Do NOT run frequency analyzer on Enter globally.
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') compute();
+      if (e.key === 'Enter') {
+        const active = document.activeElement;
+        const isTextArea = active && active.tagName === 'TEXTAREA';
+        if (!isTextArea) compute();
+      }
     });
 
     fillFromQuery();
