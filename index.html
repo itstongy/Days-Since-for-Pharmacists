@@ -398,13 +398,31 @@
           <textarea id="historyDates" rows="6" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background: var(--card); color: var(--fg);"
             placeholder="Examples:\n2701\n1202\n1902\n\n(or 27/01/26 etc)"></textarea>
 
+          <div class="grid" style="margin-top: 10px; grid-template-columns: 1fr 1fr 1fr;">
+            <div>
+              <label for="freqQty">Quantity supplied each time (optional)</label>
+              <input id="freqQty" inputmode="decimal" placeholder="e.g. 28" />
+            </div>
+            <div>
+              <label for="freqPerDay">Tablets per day (optional)</label>
+              <input id="freqPerDay" inputmode="decimal" placeholder="e.g. 1" />
+            </div>
+            <div>
+              <label for="freqBuffer">Allowed early (days)</label>
+              <input id="freqBuffer" inputmode="numeric" placeholder="9" />
+              <div class="sub" style="margin-top:6px;">Default: 9</div>
+            </div>
+          </div>
+
           <div class="row" style="margin-top: 10px;">
             <button id="analyze" type="button">Analyze frequency</button>
             <span class="statusline" id="freqStatus"></span>
           </div>
 
           <div id="freqOut" class="callout" style="margin-top: 12px; display:none;"></div>
+          <div id="freqTimeline" class="callout" style="margin-top: 12px; display:none;"></div>
           <div class="sub" style="margin-top: 10px;">Tip: you can also separate dates with commas or spaces.</div>
+          <div class="sub">Caveat: assumes only the supplies listed here (no earlier stock, no extra supplies elsewhere).</div>
         </div>
       </details>
     </div>
@@ -860,6 +878,44 @@
         const first = dates[0];
         const last = dates[dates.length - 1];
 
+        // Optional supply maths for timeline colouring + stock balance
+        const qty = parseNumber(document.querySelector('#freqQty')?.value);
+        const perDay = parseNumber(document.querySelector('#freqPerDay')?.value);
+        const bufferRaw = parseNumber(document.querySelector('#freqBuffer')?.value);
+        const buffer = Number.isFinite(bufferRaw) ? bufferRaw : 9;
+
+        const expectedDays = (qty != null && perDay != null && perDay > 0) ? (qty / perDay) : null;
+        const okThreshold = (expectedDays != null) ? Math.max(0, expectedDays - buffer) : null;
+
+        // Stock ledger (assumes starting balance 0 at first date)
+        let balanceAfterLastDispense = null;
+        let balanceToday = null;
+        if (qty != null && perDay != null && perDay > 0) {
+          let bal = 0;
+          for (let i = 0; i < dates.length; i++) {
+            bal += qty;
+            if (i < dates.length - 1) {
+              const gap = daysBetween(dates[i], dates[i + 1]);
+              bal -= gap * perDay;
+            }
+          }
+          balanceAfterLastDispense = bal;
+          const sinceLast = daysBetween(last, startOfDay(new Date()));
+          balanceToday = bal - sinceLast * perDay;
+        }
+
+        // Render summary
+        const extra = [];
+        if (expectedDays != null) {
+          extra.push(`<li><b>Expected gap:</b> ${expectedDays.toFixed(1)} days (qty/perDay)</li>`);
+          extra.push(`<li><b>Early threshold:</b> &lt; ${okThreshold.toFixed(1)} days = early</li>`);
+        }
+        if (balanceToday != null) {
+          const label = balanceToday >= 0 ? 'Net tablets (est.)' : 'Net tablets (est.)';
+          const cls = balanceToday >= 0 ? 'good' : 'bad';
+          extra.push(`<li><b>${label} today:</b> <span class="pill ${cls}">${balanceToday.toFixed(0)}</span></li>`);
+        }
+
         out.innerHTML = `
           <div class="callout-title">Dispense frequency summary</div>
           <ul class="steps">
@@ -868,10 +924,82 @@
             <li><b>Average gap:</b> ${avg.toFixed(1)} days</li>
             <li><b>Median gap:</b> ${med.toFixed(1)} days</li>
             <li><b>Range:</b> ${min}–${max} days</li>
+            ${extra.join('\n')}
           </ul>
           <div class="sub">Intervals used: ${gaps.join(', ')} days</div>
         `;
         out.style.display = '';
+
+        // Timeline (SVG)
+        const tl = document.querySelector('#freqTimeline');
+        if (tl) {
+          const span = Math.max(1, daysBetween(first, last));
+          const w = 820;
+          const h = 90;
+          const leftPad = 18;
+          const rightPad = 18;
+          const usable = w - leftPad - rightPad;
+          const y = 38;
+
+          const xFor = (d) => leftPad + ((daysBetween(first, d) / span) * usable);
+
+          const segments = [];
+          for (let i = 1; i < dates.length; i++) {
+            const a = dates[i - 1];
+            const b = dates[i];
+            const gap = daysBetween(a, b);
+            let col = '#16a34a'; // green
+            let tag = 'OK';
+            if (okThreshold != null && gap < okThreshold) {
+              col = '#ef4444';
+              tag = `EARLY (${gap}d)`;
+            } else {
+              tag = `${gap}d`;
+            }
+            segments.push({ x1: xFor(a), x2: xFor(b), col, label: tag });
+          }
+
+          const dots = dates.map((d) => ({ x: xFor(d), label: formatDate(d) }));
+
+          const svg = `
+            <div class="callout-title">Timeline</div>
+            <div class="sub" style="margin-bottom:8px;">Green = OK gap. Red = early (based on qty/perDay and buffer).</div>
+            <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="dispense timeline">
+              <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" />
+              ${segments.map(s => `
+                <line x1="${s.x1}" y1="${y}" x2="${s.x2}" y2="${y}" stroke="${s.col}" stroke-width="6" stroke-linecap="round" />
+                <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="#475569">${s.label}</text>
+              `).join('')}
+              ${dots.map(d => `
+                <circle cx="${d.x}" cy="${y}" r="7" fill="#0f172a" />
+              `).join('')}
+              <text x="${leftPad}" y="${h - 10}" font-size="11" fill="#475569">${formatDate(first)}</text>
+              <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="#475569">${formatDate(last)}</text>
+            </svg>
+          `;
+
+          // If no qty/perDay, still show timeline but with neutral colouring and no early logic
+          if (expectedDays == null) {
+            tl.innerHTML = `
+              <div class="callout-title">Timeline</div>
+              <div class="sub" style="margin-bottom:8px;">Enter quantity + tablets/day to colour early vs OK.</div>
+              <svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img" aria-label="dispense timeline">
+                <line x1="${leftPad}" y1="${y}" x2="${w - rightPad}" y2="${y}" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" />
+                ${segments.map(s => `
+                  <line x1="${s.x1}" y1="${y}" x2="${s.x2}" y2="${y}" stroke="#94a3b8" stroke-width="6" stroke-linecap="round" />
+                  <text x="${(s.x1 + s.x2) / 2}" y="${y - 10}" text-anchor="middle" font-size="11" fill="#475569">${s.label}</text>
+                `).join('')}
+                ${dots.map(d => `<circle cx="${d.x}" cy="${y}" r="7" fill="#0f172a" />`).join('')}
+                <text x="${leftPad}" y="${h - 10}" font-size="11" fill="#475569">${formatDate(first)}</text>
+                <text x="${w - rightPad}" y="${h - 10}" text-anchor="end" font-size="11" fill="#475569">${formatDate(last)}</text>
+              </svg>
+            `;
+          } else {
+            tl.innerHTML = svg;
+          }
+          tl.style.display = '';
+        }
+
       });
     }
 
