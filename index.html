@@ -26,6 +26,12 @@
       --chip: #ffffff;
       --callout: #eff6ff;
       --callout-border: #dbeafe;
+      --pastel-days-bg: linear-gradient(180deg, #eef2ff, #ffffff 75%);
+      --pastel-days-border: #dbe3ff;
+      --pastel-med-bg: linear-gradient(180deg, #ecfdf5, #ffffff 75%);
+      --pastel-med-border: #c7f0dc;
+      --pastel-gauge-bg: linear-gradient(180deg, #f5f3ff, #ffffff 75%);
+      --pastel-gauge-border: #e7ddff;
     }
 
     .theme-dark {
@@ -46,6 +52,12 @@
       --chip: #0b1220;
       --callout: #0b162a;
       --callout-border: #1f2a44;
+      --pastel-days-bg: linear-gradient(180deg, #0f1b35, #0f172a 75%);
+      --pastel-days-border: #1f3b6f;
+      --pastel-med-bg: linear-gradient(180deg, #0e2a22, #0f172a 75%);
+      --pastel-med-border: #1f5f4f;
+      --pastel-gauge-bg: linear-gradient(180deg, #1a1333, #0f172a 75%);
+      --pastel-gauge-border: #3a2a6b;
     }
 
     body {
@@ -98,16 +110,16 @@
 
     /* Pastel card accents */
     .card-days {
-      background: linear-gradient(180deg, #eef2ff, #ffffff 75%);
-      border-color: #dbe3ff;
+      background: var(--pastel-days-bg);
+      border-color: var(--pastel-days-border);
     }
     .card-med {
-      background: linear-gradient(180deg, #ecfdf5, #ffffff 75%);
-      border-color: #c7f0dc;
+      background: var(--pastel-med-bg);
+      border-color: var(--pastel-med-border);
     }
     .card-gauge {
-      background: linear-gradient(180deg, #f5f3ff, #ffffff 75%);
-      border-color: #e7ddff;
+      background: var(--pastel-gauge-bg);
+      border-color: var(--pastel-gauge-border);
     }
 
     .grid {
@@ -304,9 +316,15 @@
           <label for="perDay">Tablets per day (optional)</label>
           <input id="perDay" inputmode="decimal" placeholder="e.g. 1" />
           <div class="row" style="margin-top: 8px;">
-            <button class="chip" type="button" data-set="perDay" data-val="0.5">0.5/day</button>
-            <button class="chip" type="button" data-set="perDay" data-val="1">1/day</button>
-            <button class="chip" type="button" data-set="perDay" data-val="2">2/day</button>
+            <button class="chip" type="button" data-set="perDay" data-val="0.5">0.5</button>
+            <button class="chip" type="button" data-set="perDay" data-val="1">1</button>
+            <button class="chip" type="button" data-set="perDay" data-val="2">2</button>
+            <button class="chip" type="button" data-set="perDay" data-val="3">3</button>
+            <button class="chip" type="button" data-set="perDay" data-val="4">4</button>
+            <button class="chip" type="button" data-set="perDay" data-val="5">5</button>
+            <button class="chip" type="button" data-set="perDay" data-val="6">6</button>
+            <button class="chip" type="button" data-set="perDay" data-val="7">7</button>
+            <button class="chip" type="button" data-set="perDay" data-val="8">8</button>
           </div>
         </div>
       </div>
