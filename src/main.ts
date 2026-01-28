@@ -1,10 +1,6 @@
 import './style.css';
 
-import {
-  computeCanSupplyDate,
-  computeSupplyMetrics,
-  supplyDecision,
-} from './lib/calc';
+import { computeCanSupplyDate, computeSupplyMetrics, supplyDecision } from './lib/calc';
 import { daysBetween, formatDate, parseFlexibleDate, parseManyDates, startOfDay } from './lib/date';
 import { analyzeFrequency } from './lib/frequency';
 import { parseNumber } from './lib/number';
@@ -29,6 +25,7 @@ const parsedValue = byId<HTMLSpanElement>('parsedValue');
 const daysPill = byId<HTMLSpanElement>('daysPill');
 const flagPill = byId<HTMLSpanElement>('flagPill');
 const canSupplyEl = byId<HTMLParagraphElement>('canSupply');
+const burnRateEl = byId<HTMLParagraphElement>('burnRate');
 const decisionCard = byId<HTMLDivElement>('decisionCard');
 const resultGrid = byId<HTMLDivElement>('resultGrid');
 
@@ -268,6 +265,18 @@ const computeAndRender = () => {
     setPill(flagPill, decision.kind, decision.text);
     setDecisionCardTone(decision.kind);
 
+    // If it looks too early, show the implied burn rate required to be out today.
+    if (burnRateEl && decision.kind === 'bad' && daysSince > 0) {
+      const neededPerDay = amount / daysSince;
+      burnRateEl.textContent = `To be out today, they’d need ~${neededPerDay.toFixed(
+        neededPerDay < 10 ? 1 : 0,
+      )} tablets/day.`;
+      burnRateEl.hidden = false;
+    } else if (burnRateEl) {
+      burnRateEl.hidden = true;
+      burnRateEl.textContent = '';
+    }
+
     const { date, daysUntilOk } = computeCanSupplyDate(today, metrics.daysLeft, buffer);
     canSupplyEl.textContent =
       daysUntilOk === 0
@@ -277,8 +286,16 @@ const computeAndRender = () => {
     setHidden(medSection, false);
     setHidden(gaugeSection, false);
   } else {
-    setHidden(decisionCard, true);
-    resultGrid?.classList.add('single-card');
+    // No medication maths entered: still show the decision card with neutral guidance.
+    setHidden(decisionCard, false);
+    resultGrid?.classList.remove('single-card');
+    setDecisionCardTone('warn');
+    setPill(flagPill, 'warn', 'Add tablets/day to judge supply');
+    canSupplyEl.textContent = 'Add tablets/day to calculate “can supply on” date.';
+    if (burnRateEl) {
+      burnRateEl.hidden = true;
+      burnRateEl.textContent = '';
+    }
     setHidden(medSection, true);
     setHidden(gaugeSection, true);
   }

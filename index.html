@@ -15,7 +15,7 @@
   <body class="text-slate-950 dark:text-slate-100">
     <div class="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-4 pb-16 pt-10">
       <header class="card card-spotlight reveal">
-        <div class="flex flex-wrap items-center justify-between gap-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div class="flex min-w-0 flex-1 items-center gap-4">
             <div
               class="grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-2xl text-white shadow-lg dark:bg-slate-100 dark:text-slate-900"
@@ -30,11 +30,16 @@
               </p>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button id="themeToggle" class="btn-secondary" type="button" aria-pressed="false">
+          <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <button
+              id="themeToggle"
+              class="btn-secondary w-full sm:w-auto"
+              type="button"
+              aria-pressed="false"
+            >
               Dark mode
             </button>
-            <button id="reset" class="btn" type="button">Reset</button>
+            <button id="reset" class="btn w-full sm:w-auto" type="button">Reset</button>
           </div>
         </div>
       </header>
@@ -115,10 +120,7 @@
                 <p id="parsedValue" class="muted mt-3 text-sm">Parsed as</p>
               </div>
 
-              <div
-                id="decisionCard"
-                class="result-card decision-tone-warn transition-colors"
-              >
+              <div id="decisionCard" class="result-card decision-tone-warn transition-colors">
                 <p class="label">Supply decision</p>
                 <div class="mt-3 flex flex-wrap items-center gap-2">
                   <span id="flagPill" class="pill pill-warn">Add tablets/day to judge supply</span>
@@ -126,6 +128,7 @@
                 <p id="canSupply" class="muted mt-3 text-sm">
                   Add tablets/day to calculate “can supply on” date.
                 </p>
+                <p id="burnRate" class="muted mt-2 text-xs" hidden></p>
               </div>
 
               <div id="medSection" class="contents" hidden>
