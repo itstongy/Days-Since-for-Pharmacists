@@ -130,8 +130,10 @@
   .divider {
     @apply h-px w-full bg-slate-200/70 dark:bg-slate-700/60;
   }
+}
 
-  /* Decision card tinting (avoid Tailwind purge by defining the classes here) */
+@layer utilities {
+  /* Decision card tinting (must be in utilities layer to override base utility classes) */
   .decision-tone-good {
     @apply border-emerald-300/70 bg-emerald-50/70 dark:border-emerald-500/40 dark:bg-emerald-950/30;
   }
@@ -143,9 +145,7 @@
   .decision-tone-bad {
     @apply border-rose-300/70 bg-rose-50/70 dark:border-rose-500/40 dark:bg-rose-950/30;
   }
-}
 
-@layer utilities {
   .grid-spot {
     background-image: radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.07) 1px, transparent 0);
     background-size: 18px 18px;

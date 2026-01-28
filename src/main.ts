@@ -9,7 +9,7 @@ import {
 import { daysBetween, formatDate, parseFlexibleDate, parseManyDates, startOfDay } from './lib/date';
 import { analyzeFrequency } from './lib/frequency';
 import { parseNumber } from './lib/number';
-import { buildShareUrl, parseShareState } from './lib/share';
+import { parseShareState } from './lib/share';
 
 const DEFAULT_BUFFER = 9;
 
@@ -21,7 +21,6 @@ const amountInput = byId<HTMLInputElement>('amount');
 const perDayInput = byId<HTMLInputElement>('perDay');
 const bufferInput = byId<HTMLInputElement>('buffer');
 const calcButton = byId<HTMLButtonElement>('calc');
-const copyButton = byId<HTMLButtonElement>('copy');
 const resetButton = byId<HTMLButtonElement>('reset');
 const statusEl = byId<HTMLParagraphElement>('status');
 
@@ -401,26 +400,6 @@ const analyzeAndRender = () => {
   setHidden(freqOutput, false);
 };
 
-const copyShareLink = async () => {
-  if (!dateInput || !amountInput || !perDayInput || !bufferInput) return;
-
-  const state = {
-    date: dateInput.value.trim(),
-    amount: amountInput.value.trim(),
-    perDay: perDayInput.value.trim(),
-    buffer: bufferInput.value.trim(),
-  };
-
-  const url = buildShareUrl(window.location.href, state, String(DEFAULT_BUFFER));
-
-  try {
-    await navigator.clipboard.writeText(url);
-    setStatus(statusEl, 'Copied link.');
-  } catch {
-    setStatus(statusEl, url);
-  }
-};
-
 const fillFromQuery = () => {
   if (!dateInput || !amountInput || !perDayInput || !bufferInput) return;
 
@@ -479,7 +458,6 @@ const initTheme = () => {
 };
 
 calcButton?.addEventListener('click', computeAndRender);
-copyButton?.addEventListener('click', copyShareLink);
 analyzeButton?.addEventListener('click', analyzeAndRender);
 resetButton?.addEventListener('click', resetAll);
 
