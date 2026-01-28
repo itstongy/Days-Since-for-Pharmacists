@@ -221,34 +221,33 @@
         <div>
           <label for="amount">Amount of tablets (optional)</label>
           <input id="amount" inputmode="decimal" placeholder="e.g. 30" />
+          <div class="row" style="margin-top: 8px;">
+            <button class="chip" type="button" data-set="amount" data-val="28">28</button>
+            <button class="chip" type="button" data-set="amount" data-val="30">30</button>
+            <button class="chip" type="button" data-set="amount" data-val="56">56</button>
+            <button class="chip" type="button" data-set="amount" data-val="84">84</button>
+          </div>
         </div>
         <div>
           <label for="perDay">Tablets per day (optional)</label>
           <input id="perDay" inputmode="decimal" placeholder="e.g. 1" />
+          <div class="row" style="margin-top: 8px;">
+            <button class="chip" type="button" data-set="perDay" data-val="0.5">0.5/day</button>
+            <button class="chip" type="button" data-set="perDay" data-val="1">1/day</button>
+            <button class="chip" type="button" data-set="perDay" data-val="2">2/day</button>
+          </div>
         </div>
       </div>
 
       <div class="row" style="margin-top: 10px;">
-        <div style="flex: 1 1 260px;">
+        <div style="flex: 1 1 320px;">
           <label for="buffer">Early supply buffer (days)</label>
-          <div class="row" style="gap: 12px;">
-            <input id="buffer" type="range" min="0" max="21" step="1" value="7" />
-            <span class="pill" id="bufferVal">7 days</span>
+          <div class="row" style="gap: 10px; align-items: baseline;">
+            <input id="buffer" inputmode="numeric" placeholder="9" style="max-width: 140px;" />
+            <span class="sub">Default: 9</span>
           </div>
-          <div class="sub" style="margin-top:6px;">✅ if due within buffer (or overdue). ❌ if too early.</div>
+          <div class="sub" style="margin-top:6px;">✅ if due within buffer (or overdue). ❌ if too early. (Default 9 days)</div>
         </div>
-      </div>
-
-      <div class="row" style="margin-top: 12px;">
-        <span class="sub" style="min-width: 100%;">Quick fill (optional):</span>
-        <button class="chip" type="button" data-set="amount" data-val="28">28</button>
-        <button class="chip" type="button" data-set="amount" data-val="30">30</button>
-        <button class="chip" type="button" data-set="amount" data-val="56">56</button>
-        <button class="chip" type="button" data-set="amount" data-val="84">84</button>
-        <span class="sub">|</span>
-        <button class="chip" type="button" data-set="perDay" data-val="0.5">0.5/day</button>
-        <button class="chip" type="button" data-set="perDay" data-val="1">1/day</button>
-        <button class="chip" type="button" data-set="perDay" data-val="2">2/day</button>
       </div>
 
       <div class="row" style="margin-top: 12px;">
@@ -300,7 +299,7 @@
       <ul>
         <li><b>Format:</b> <code>DD/MM</code> or <code>DD/MM/YY</code> or <code>DD/MM/YYYY</code></li>
         <li><b>Optional meds:</b> add <code>amount</code> then <code>perDay</code> (e.g. <code>25/06 60 2</code>)</li>
-        <li><b>Optional buffer:</b> add <code>&amp;buffer=7</code> to the URL (default 7)</li>
+        <li><b>Optional buffer:</b> add <code>&amp;buffer=9</code> to the URL (default 9)</li>
       </ul>
       <p class="sub" style="margin-top: 12px; margin-bottom: 6px;">URL formats supported:</p>
       <ul>
@@ -410,7 +409,7 @@
       // - ⚠️ if inputs are missing
       if (daysLeft == null) return { cls: 'warn', text: 'Add tablets/day to judge supply' };
 
-      const b = Number.isFinite(bufferDays) ? bufferDays : 7;
+      const b = Number.isFinite(bufferDays) ? bufferDays : 9;
 
       if (daysLeft < 0) {
         return { cls: 'good', text: `✅ Overdue by ${Math.abs(daysLeft)}d (OK to supply)` };
@@ -435,10 +434,7 @@
       const amountRaw = document.querySelector('#amount').value;
       const perDayRaw = document.querySelector('#perDay').value;
 
-      // buffer UI label
-      const bufferEl = document.querySelector('#buffer');
-      const bufferValEl = document.querySelector('#bufferVal');
-      if (bufferEl && bufferValEl) bufferValEl.textContent = `${bufferEl.value} days`;
+      // buffer handled via numeric input (default 9)
 
       const p = parseFlexibleDate(dateRaw);
       const statusEl = document.querySelector('#status');
@@ -530,7 +526,7 @@
 
       // Supply decision + "can get on" date
       const bufferUi = parseNumber(document.querySelector('#buffer')?.value);
-      const buffer = (bufferUi == null ? 7 : bufferUi);
+      const buffer = (bufferUi == null ? 9 : bufferUi);
 
       if (amount != null && perDay != null && perDay > 0) {
         const f = supplyDecision(daysLeftForFlag, buffer);
@@ -576,9 +572,7 @@
       if (perDay) document.querySelector('#perDay').value = perDay;
       if (buffer && document.querySelector('#buffer')) document.querySelector('#buffer').value = buffer;
 
-      const bufferEl = document.querySelector('#buffer');
-      const bufferValEl = document.querySelector('#bufferVal');
-      if (bufferEl && bufferValEl) bufferValEl.textContent = `${bufferEl.value} days`;
+      // buffer input is numeric; default handled in compute()
 
       if (document.querySelector('#date').value.trim()) {
         compute();
@@ -595,7 +589,7 @@
       const url = new URL(location.href);
       url.search = '';
       if (tokens) url.searchParams.set('s', tokens);
-      if (buffer && buffer !== '7') url.searchParams.set('buffer', buffer);
+      if (buffer && buffer !== '9') url.searchParams.set('buffer', buffer);
       return url.toString();
     }
 
@@ -621,14 +615,11 @@
       });
     });
 
-    // Buffer slider updates
+    // Buffer input updates (keyboard-first): compute on Enter already; also compute on blur/change.
     const bufferEl = document.querySelector('#buffer');
-    const bufferValEl = document.querySelector('#bufferVal');
-    if (bufferEl && bufferValEl) {
-      bufferEl.addEventListener('input', () => {
-        bufferValEl.textContent = `${bufferEl.value} days`;
-      });
+    if (bufferEl) {
       bufferEl.addEventListener('change', compute);
+      bufferEl.addEventListener('blur', compute);
     }
 
     document.addEventListener('keydown', (e) => {
