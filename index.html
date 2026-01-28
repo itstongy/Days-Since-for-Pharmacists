@@ -36,7 +36,7 @@
       inset: 0;
       pointer-events: none;
       opacity: 0.035;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Ctext x='18' y='60' font-size='28'%3E%F0%9F%92%8A%3C/text%3E%3Ctext x='150' y='110' font-size='26'%3E%F0%9F%92%89%3C/text%3E%3Ctext x='60' y='170' font-size='26'%3E%F0%9F%A9%BA%3C/text%3E%3Ctext x='170' y='200' font-size='24'%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Ctext x='18' y='62' font-size='28'%3E%F0%9F%92%8A%3C/text%3E%3Ctext x='112' y='98' font-size='26'%3E%F0%9F%92%89%3C/text%3E%3Ctext x='230' y='64' font-size='26'%3E%F0%9F%A9%BA%3C/text%3E%3Ctext x='40' y='170' font-size='26'%3E%F0%9F%A9%BA%3C/text%3E%3Ctext x='190' y='168' font-size='26'%3E%F0%9F%A7%BE%3C/text%3E%3Ctext x='250' y='210' font-size='26'%3E%F0%9F%93%84%3C/text%3E%3Ctext x='90' y='260' font-size='26'%3E%F0%9F%92%8A%3C/text%3E%3Ctext x='20' y='300' font-size='24'%3E%F0%9F%94%AC%3C/text%3E%3Ctext x='220' y='302' font-size='24'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E");
       background-repeat: repeat;
       filter: grayscale(100%);
     }
@@ -65,6 +65,20 @@
       padding: 16px;
       margin: 16px 0;
       box-shadow: var(--shadow);
+    }
+
+    /* Pastel card accents */
+    .card-days {
+      background: linear-gradient(180deg, #eef2ff, #ffffff 75%);
+      border-color: #dbe3ff;
+    }
+    .card-med {
+      background: linear-gradient(180deg, #ecfdf5, #ffffff 75%);
+      border-color: #c7f0dc;
+    }
+    .card-gauge {
+      background: linear-gradient(180deg, #f5f3ff, #ffffff 75%);
+      border-color: #e7ddff;
     }
 
     .grid {
@@ -216,7 +230,7 @@
     <!-- Results: three cards -->
     <div id="out" style="display:none;">
       <div class="grid results">
-        <div class="card center">
+        <div class="card center card-days">
           <div class="sub" style="margin-bottom: 6px;">Days since</div>
           <div class="big" id="days">—</div>
           <div class="row" style="justify-content:center; margin-top: 8px;">
@@ -225,7 +239,7 @@
           <div class="sub" id="parsed" style="margin-top: 10px;">—</div>
         </div>
 
-        <div class="card" id="medCard" style="display:none;">
+        <div class="card card-med" id="medCard" style="display:none;">
           <div class="sub" style="margin-bottom: 6px;">Days left (estimated)</div>
           <div class="big" id="daysLeft">—</div>
           <div class="row" style="margin-top: 8px;">
@@ -234,7 +248,7 @@
           <div class="sub" id="runout" style="margin-top: 10px;">—</div>
         </div>
 
-        <div class="card" id="gaugeCard" style="display:none;">
+        <div class="card card-gauge" id="gaugeCard" style="display:none;">
           <div class="sub" style="margin-bottom: 6px;">Supply gauge</div>
           <div class="bar" aria-label="supply gauge"><div id="barFill"></div></div>
           <div class="row" style="justify-content: space-between; margin-top: 10px;">
@@ -333,7 +347,16 @@
       if (days === 0) return { cls: 'warn', text: 'Today' };
       if (days <= 7) return { cls: 'good', text: 'Recent' };
       if (days <= 30) return { cls: 'warn', text: 'A while ago' };
-      return { cls: 'bad', text: 'Long ago' };
+      // Default fallback: keep simple
+      return { cls: 'bad', text: '—' };
+    }
+
+    function pickupFlag(daysLeft) {
+      // Requested: ✅ if they have <9 days to go, ❌ otherwise
+      if (daysLeft == null) return { cls: 'warn', text: 'Enter tablets to show ✅/❌' };
+      if (daysLeft < 9 && daysLeft >= 0) return { cls: 'good', text: '✅ < 9 days left' };
+      if (daysLeft < 0) return { cls: 'bad', text: '❌ already overdue' };
+      return { cls: 'bad', text: '❌ ≥ 9 days left' };
     }
 
     function setPill(el, cls, text) {
@@ -369,9 +392,6 @@
       const inferredNote = p.inferred ? ' (year inferred)' : '';
       document.querySelector('#parsed').textContent = `Parsed as ${formatDate(d)}${inferredNote}`;
 
-      const st = pickStatus(days);
-      setPill(document.querySelector('#flag'), st.cls, st.text);
-
       // Medication cards
       const amount = parseNumber(amountRaw);
       const perDay = parseNumber(perDayRaw);
@@ -380,6 +400,8 @@
       const gaugeCard = document.querySelector('#gaugeCard');
       const details = document.querySelector('#medDetails');
       details.innerHTML = '';
+
+      let daysLeftForFlag = null;
 
       if (amount != null && perDay != null && perDay > 0) {
         medCard.style.display = '';
@@ -390,6 +412,7 @@
         const runoutDate = new Date(d.getFullYear(), d.getMonth(), d.getDate() + totalDays);
 
         const daysLeft = daysBetween(today, runoutDate); // runout - today
+        daysLeftForFlag = daysLeft;
 
         // Days left card
         document.querySelector('#daysLeft').textContent = `${daysLeft}`;
@@ -436,6 +459,15 @@
       } else {
         medCard.style.display = 'none';
         gaugeCard.style.display = 'none';
+      }
+
+      // Flag pill: ✅/❌ based on days left when med inputs are present; fallback otherwise.
+      if (amount != null && perDay != null && perDay > 0) {
+        const f = pickupFlag(daysLeftForFlag);
+        setPill(document.querySelector('#flag'), f.cls, f.text);
+      } else {
+        const st = pickStatus(days);
+        setPill(document.querySelector('#flag'), st.cls, st.text);
       }
 
       statusEl.textContent = '';
