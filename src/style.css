@@ -130,6 +130,11 @@
   .divider {
     @apply h-px w-full bg-slate-200/70 dark:bg-slate-700/60;
   }
+
+  /* Standardized result card sizing */
+  .result-card {
+    @apply h-full min-h-[168px] rounded-2xl border border-slate-200/60 bg-white/70 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50;
+  }
 }
 
 @layer utilities {
