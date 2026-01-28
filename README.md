@@ -4,6 +4,8 @@ Fast, simple, and private. **Days Since for Pharmacists** is a lightweight web t
 
 **Try it now →** https://itstongy.github.io/Days-Since-for-Pharmacists/
 
+![Main mode screenshot](assets/DaysSinceMainMode.png)
+
 ## Why pharmacists use it
 - **Save time**: no more counting days on a calendar or doing manual date math
 - **Reduce errors**: consistent “too early vs due” checks with a clear buffer
@@ -24,6 +26,8 @@ Fast, simple, and private. **Days Since for Pharmacists** is a lightweight web t
 
 ## Dispense frequency + timeline view (multiple dates)
 Open **“Dispense frequency (multiple dates)”** and paste dispense dates.
+
+![Timeline mode screenshot](assets/daySinceTimeline.png)
 
 ### Inputs
 - **Dispense dates:** one per line (or separated by spaces/commas)
