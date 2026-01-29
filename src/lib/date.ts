@@ -19,6 +19,42 @@ export function formatDate(date: Date): string {
   return `${dd}/${mm}/${date.getFullYear()}`;
 }
 
+export function addMonthsClamped(date: Date, months: number): Date {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const base = new Date(year, month + months, 1);
+  const lastDay = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+  const clampedDay = Math.min(day, lastDay);
+  return new Date(base.getFullYear(), base.getMonth(), clampedDay);
+}
+
+export function monthsAndDaysBetween(
+  start: Date,
+  end: Date,
+): { months: number; days: number; isPast: boolean } {
+  const startDay = startOfDay(start);
+  const endDay = startOfDay(end);
+  const isPast = endDay.getTime() < startDay.getTime();
+
+  let cursor = isPast ? endDay : startDay;
+  const target = isPast ? startDay : endDay;
+  let months = 0;
+
+  while (true) {
+    const next = addMonthsClamped(cursor, 1);
+    if (next.getTime() <= target.getTime()) {
+      months += 1;
+      cursor = next;
+    } else {
+      break;
+    }
+  }
+
+  const days = daysBetween(cursor, target);
+  return { months, days, isPast };
+}
+
 export function parseFlexibleDate(raw: string, today = new Date()): ParseDateResult {
   const input = (raw || '').trim();
   if (!input) return { ok: false, error: 'Enter a dispense date.' };

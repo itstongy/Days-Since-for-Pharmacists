@@ -1,7 +1,15 @@
 import './style.css';
 
 import { computeCanSupplyDate, computeSupplyMetrics, supplyDecision } from './lib/calc';
-import { daysBetween, formatDate, parseFlexibleDate, parseManyDates, startOfDay } from './lib/date';
+import {
+  addMonthsClamped,
+  daysBetween,
+  formatDate,
+  monthsAndDaysBetween,
+  parseFlexibleDate,
+  parseManyDates,
+  startOfDay,
+} from './lib/date';
 import { analyzeFrequency } from './lib/frequency';
 import { parseNumber } from './lib/number';
 import { parseShareState } from './lib/share';
@@ -28,6 +36,13 @@ const canSupplyEl = byId<HTMLParagraphElement>('canSupply');
 const burnRateEl = byId<HTMLParagraphElement>('burnRate');
 const decisionCard = byId<HTMLDivElement>('decisionCard');
 const resultGrid = byId<HTMLDivElement>('resultGrid');
+const scriptCheckerSection = byId<HTMLDivElement>('scriptCheckerSection');
+const standardScriptCard = byId<HTMLDivElement>('standardScriptCard');
+const s8ScriptCard = byId<HTMLDivElement>('s8ScriptCard');
+const s8StatusPill = byId<HTMLSpanElement>('s8StatusPill');
+const standardStatusPill = byId<HTMLSpanElement>('standardStatusPill');
+const s8ExpiryText = byId<HTMLParagraphElement>('s8ExpiryText');
+const standardExpiryText = byId<HTMLParagraphElement>('standardExpiryText');
 
 const medSection = byId<HTMLDivElement>('medSection');
 const gaugeSection = byId<HTMLDivElement>('gaugeSection');
@@ -51,6 +66,9 @@ const freqTimeline = byId<HTMLDivElement>('freqTimeline');
 const intervalsText = byId<HTMLParagraphElement>('intervalsText');
 
 const themeToggle = byId<HTMLButtonElement>('themeToggle');
+
+const EXPIRY_THRESHOLD_MONTHS = 4;
+const EXPIRY_SOON_DAYS = 30;
 
 const setHidden = (el: HTMLElement | null, hidden: boolean) => {
   if (!el) return;
@@ -77,6 +95,56 @@ const setDecisionCardTone = (kind: 'good' | 'warn' | 'bad') => {
   if (kind === 'good') decisionCard.classList.add('decision-tone-good');
   else if (kind === 'bad') decisionCard.classList.add('decision-tone-bad');
   else decisionCard.classList.add('decision-tone-warn');
+};
+
+const setCardTone = (el: HTMLElement | null, kind: 'good' | 'warn' | 'bad') => {
+  if (!el) return;
+  el.classList.remove('decision-tone-good', 'decision-tone-warn', 'decision-tone-bad');
+  el.classList.add(`decision-tone-${kind}`);
+};
+
+const renderScriptExpiry = (
+  startDate: Date,
+  today: Date,
+  expiryMonths: number,
+  card: HTMLElement | null,
+  pill: HTMLElement | null,
+  text: HTMLElement | null,
+) => {
+  if (!pill || !text) return;
+  const expiryDate = addMonthsClamped(startDate, expiryMonths);
+  const totalDays = daysBetween(today, expiryDate);
+  const { months, days, isPast } = monthsAndDaysBetween(today, expiryDate);
+
+  const parts = [];
+  if (months) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+  if (days) parts.push(`${days} day${days === 1 ? '' : 's'}`);
+  const spanText = parts.length ? parts.join(' ') : '0 days';
+  const daysOnlyText = `${days} day${days === 1 ? '' : 's'}`;
+  const detailText = months ? `${spanText} (${totalDays} days)` : daysOnlyText;
+
+  if (totalDays === 0) {
+    setPill(pill, 'warn', 'Expires today');
+    setCardTone(card, 'warn');
+    text.textContent = `Expires today (${formatDate(expiryDate)}).`;
+    return;
+  }
+
+  if (isPast) {
+    setPill(pill, 'bad', 'Expired');
+    setCardTone(card, 'bad');
+    text.textContent = `Expired ${detailText} ago (${formatDate(expiryDate)}).`;
+    return;
+  }
+
+  if (totalDays <= EXPIRY_SOON_DAYS) {
+    setPill(pill, 'warn', 'Expiring soon');
+    setCardTone(card, 'warn');
+  } else {
+    setPill(pill, 'good', 'Valid');
+    setCardTone(card, 'good');
+  }
+  text.textContent = `Expires in ${detailText} on ${formatDate(expiryDate)}.`;
 };
 
 const renderTimeline = (dates: Date[], gaps: number[], okThreshold: number | null) => {
@@ -283,18 +351,41 @@ const computeAndRender = () => {
         ? 'Can supply: today'
         : `Can supply on: ${formatDate(date)} (in ${daysUntilOk}d)`;
 
+    setHidden(scriptCheckerSection, true);
+
     setHidden(medSection, false);
     setHidden(gaugeSection, false);
   } else {
-    // No medication maths entered: still show the decision card with neutral guidance.
-    setHidden(decisionCard, false);
-    resultGrid?.classList.remove('single-card');
+    // No medication maths entered: hide supply decision and show script checker if applicable.
+    setHidden(decisionCard, true);
     setDecisionCardTone('warn');
     setPill(flagPill, 'warn', 'Add tablets/day to judge supply');
     canSupplyEl.textContent = 'Add tablets/day to calculate “can supply on” date.';
     if (burnRateEl) {
       burnRateEl.hidden = true;
       burnRateEl.textContent = '';
+    }
+    if (scriptCheckerSection && amount == null && perDay == null) {
+      const thresholdDate = addMonthsClamped(startDate, EXPIRY_THRESHOLD_MONTHS);
+      if (today.getTime() >= thresholdDate.getTime()) {
+        renderScriptExpiry(
+          startDate,
+          today,
+          12,
+          standardScriptCard,
+          standardStatusPill,
+          standardExpiryText,
+        );
+        renderScriptExpiry(startDate, today, 6, s8ScriptCard, s8StatusPill, s8ExpiryText);
+        setHidden(scriptCheckerSection, false);
+        resultGrid?.classList.remove('single-card');
+      } else {
+        setHidden(scriptCheckerSection, true);
+        resultGrid?.classList.add('single-card');
+      }
+    } else {
+      setHidden(scriptCheckerSection, true);
+      resultGrid?.classList.add('single-card');
     }
     setHidden(medSection, true);
     setHidden(gaugeSection, true);
@@ -445,6 +536,7 @@ const resetAll = () => {
   if (freqAsOfToday) freqAsOfToday.checked = true;
 
   setHidden(output, true);
+  setHidden(scriptCheckerSection, true);
   setHidden(freqOutput, true);
   setHidden(freqTimeline, true);
 
