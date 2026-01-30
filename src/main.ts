@@ -15,6 +15,8 @@ import { parseNumber } from './lib/number';
 import { parseShareState } from './lib/share';
 
 const DEFAULT_BUFFER = 9;
+const BUFFER_STORAGE_KEY = 'daysSince.bufferDays';
+const BUFFER_STORAGE_DATE_KEY = 'daysSince.bufferDays.date';
 
 const byId = <T extends HTMLElement>(id: string): T | null =>
   document.getElementById(id) as T | null;
@@ -69,6 +71,28 @@ const themeToggle = byId<HTMLButtonElement>('themeToggle');
 
 const EXPIRY_THRESHOLD_MONTHS = 4;
 const EXPIRY_SOON_DAYS = 30;
+
+const todayKey = (): string => {
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${mm}-${dd}`;
+};
+
+const readStoredBuffer = (): number => {
+  const storedDate = localStorage.getItem(BUFFER_STORAGE_DATE_KEY);
+  if (storedDate !== todayKey()) return DEFAULT_BUFFER;
+  const raw = localStorage.getItem(BUFFER_STORAGE_KEY);
+  const parsed = parseNumber(raw ?? '');
+  if (parsed == null || parsed < 0) return DEFAULT_BUFFER;
+  return parsed;
+};
+
+const writeStoredBuffer = (value: number | null) => {
+  if (value == null || value < 0) return;
+  localStorage.setItem(BUFFER_STORAGE_KEY, String(value));
+  localStorage.setItem(BUFFER_STORAGE_DATE_KEY, todayKey());
+};
 
 const setHidden = (el: HTMLElement | null, hidden: boolean) => {
   if (!el) return;
@@ -286,7 +310,7 @@ const computeAndRender = () => {
 
   const amount = parseNumber(amountInput.value);
   const perDay = parseNumber(perDayInput.value);
-  const buffer = parseNumber(bufferInput.value) ?? DEFAULT_BUFFER;
+  const buffer = parseNumber(bufferInput.value) ?? readStoredBuffer();
 
   if (amount != null && perDay != null && perDay > 0 && medSection && gaugeSection) {
     setHidden(decisionCard, false);
@@ -514,7 +538,13 @@ const fillFromQuery = () => {
   if (state.date) dateInput.value = state.date;
   if (state.amount) amountInput.value = state.amount;
   if (state.perDay) perDayInput.value = state.perDay;
-  if (state.buffer) bufferInput.value = state.buffer;
+  if (state.buffer) {
+    bufferInput.value = state.buffer;
+    writeStoredBuffer(parseNumber(state.buffer) ?? null);
+  } else {
+    const stored = readStoredBuffer();
+    bufferInput.value = stored === DEFAULT_BUFFER ? '' : String(stored);
+  }
 
   if (dateInput.value.trim()) {
     computeAndRender();
@@ -527,7 +557,8 @@ const resetAll = () => {
   dateInput.value = '';
   amountInput.value = '';
   perDayInput.value = '';
-  bufferInput.value = '';
+  bufferInput.value = String(DEFAULT_BUFFER);
+  writeStoredBuffer(DEFAULT_BUFFER);
 
   if (historyDates) historyDates.value = '';
   if (freqQty) freqQty.value = '';
@@ -569,8 +600,14 @@ calcButton?.addEventListener('click', computeAndRender);
 analyzeButton?.addEventListener('click', analyzeAndRender);
 resetButton?.addEventListener('click', resetAll);
 
-bufferInput?.addEventListener('blur', computeAndRender);
-bufferInput?.addEventListener('change', computeAndRender);
+bufferInput?.addEventListener('blur', () => {
+  writeStoredBuffer(parseNumber(bufferInput.value) ?? null);
+  computeAndRender();
+});
+bufferInput?.addEventListener('change', () => {
+  writeStoredBuffer(parseNumber(bufferInput.value) ?? null);
+  computeAndRender();
+});
 
 historyDates?.addEventListener('keydown', (event) => {
   if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
