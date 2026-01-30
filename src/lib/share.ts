@@ -16,6 +16,7 @@ export function parseShareState(search: string): ShareState {
     if (parts[0]) state.date = parts[0];
     if (parts[1]) state.amount = parts[1];
     if (parts[2]) state.perDay = parts[2];
+    if (parts[3]) state.buffer = parts[3];
   }
 
   const date = params.get('date');

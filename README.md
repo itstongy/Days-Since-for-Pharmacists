@@ -75,6 +75,7 @@ This tool runs entirely in your browser. **No data is saved, stored, or sent any
 
 - `?s=25/06` or `?s=25/06/2025`
 - `?s=25/06 30 1` (date, amount, per‑day)
+- `?s=25/06 30 1 9` (buffer days as 4th token)
 - `?date=25/06/2025&amount=30&perDay=1&buffer=9`
 
 ## Development
