@@ -20,9 +20,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Barlow Condensed"', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['"Onest"', 'system-ui', 'sans-serif'],
+        display: ['"Syne"', 'system-ui', 'sans-serif'],
+        mono: ['"Fragment Mono"', 'monospace'],
       },
       boxShadow: {
         glow: '0 14px 40px rgba(15, 23, 42, 0.15)',

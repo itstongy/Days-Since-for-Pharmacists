@@ -3,60 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Days Since for Pharmacists</title>
+    <title>Days Since — Pharmacy Utility</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=Onest:wght@300;400;500;600&family=Syne:wght@700;800&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <div class="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-16 pt-8">
 
-      <header class="card card-spotlight reveal">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-          <div class="flex min-w-0 flex-1 items-start gap-4">
-            <div class="rx-badge" aria-hidden="true">Rx</div>
-            <div class="min-w-0">
-              <p class="label">Pharmacy utility</p>
-              <h1 class="mt-0.5 text-3xl font-bold leading-tight sm:text-4xl">Days Since</h1>
-              <p class="muted mt-2 max-w-lg text-sm leading-relaxed">
-                Quick dispense checks, supply estimates, and history analysis — all offline.
-              </p>
-            </div>
-          </div>
-          <div class="flex w-full flex-shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:pt-1">
-            <button
-              id="themeToggle"
-              class="btn-secondary w-full sm:w-auto"
-              type="button"
-              aria-pressed="false"
-            >
-              Dark mode
-            </button>
-            <button id="reset" class="btn w-full sm:w-auto" type="button">Reset</button>
-          </div>
-        </div>
-      </header>
+    <!-- ── TOP BAR ─────────────────────────────────────────── -->
+    <nav class="topbar reveal">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">Rx</span>
+        <span class="brand-name">Days Since</span>
+        <span class="brand-sub">Pharmacy Utility</span>
+      </div>
+      <div class="topbar-actions">
+        <button id="themeToggle" class="btn-secondary" type="button" aria-pressed="false">
+          Dark mode
+        </button>
+        <button id="reset" class="btn" type="button">Reset</button>
+      </div>
+    </nav>
 
-      <main class="space-y-5">
+    <main>
 
-        <!-- Primary Calculator -->
-        <section class="card reveal reveal-delay-1">
-          <div class="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p class="label">Primary calculator</p>
-              <h2 class="mt-0.5 text-2xl font-bold sm:text-3xl">Days since last dispense</h2>
-              <p class="muted mt-2 text-sm leading-relaxed">
-                Enter the last dispense date. Tablet amount + daily rate unlock supply estimates and early/OK logic.
-              </p>
-            </div>
-          </div>
+      <!-- ── PRIMARY CALCULATOR — SPLIT PANEL ───────────────── -->
+      <section class="split-section reveal reveal-delay-1" aria-label="Days since calculator">
 
-          <div class="mt-5 grid gap-3 sm:grid-cols-2">
-            <label class="space-y-1.5 text-sm" for="date">
+        <!-- Left: inputs -->
+        <div class="input-panel">
+          <span class="section-num">01</span>
+          <h2>Last dispense</h2>
+          <p class="panel-desc">
+            Enter the dispense date. Add tablet amount + daily rate for supply estimates.
+          </p>
+
+          <div class="fields">
+            <label class="field" for="date">
               <span class="label">Dispense date</span>
               <input
                 id="date"
@@ -67,229 +54,195 @@
                 placeholder="DD/MM or 2701"
                 aria-describedby="dateHelp"
               />
-              <span id="dateHelp" class="muted text-xs">
-                Accepts DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM(YY).
-              </span>
+              <span id="dateHelp" class="hint">DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM</span>
             </label>
-            <label class="space-y-1.5 text-sm" for="amount">
+
+            <label class="field" for="amount">
               <span class="label">Tablets supplied</span>
-              <input
-                id="amount"
-                class="input"
-                type="number"
-                min="0"
-                step="1"
-                placeholder="e.g. 60"
-              />
+              <input id="amount" class="input" type="number" min="0" step="1" placeholder="e.g. 60" />
             </label>
-            <label class="space-y-1.5 text-sm" for="perDay">
+
+            <label class="field" for="perDay">
               <span class="label">Tablets per day</span>
-              <input
-                id="perDay"
-                class="input"
-                type="number"
-                min="0"
-                step="0.5"
-                placeholder="e.g. 2"
-              />
+              <input id="perDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
             </label>
-            <label class="space-y-1.5 text-sm" for="buffer">
-              <span class="label">Early supply buffer (days)</span>
+
+            <label class="field" for="buffer">
+              <span class="label">Early buffer (days)</span>
               <input id="buffer" class="input" type="number" min="0" step="1" placeholder="9" />
             </label>
           </div>
 
-          <div class="mt-5 flex flex-wrap items-center gap-3">
-            <button id="calc" class="btn" type="button">Calculate</button>
-            <p id="status" class="muted text-sm" role="status" aria-live="polite"></p>
-          </div>
+          <button id="calc" class="calc-btn" type="button">Calculate →</button>
+          <p id="status" class="muted" style="font-size:0.78rem;margin-top:0.75rem;min-height:1rem" role="status" aria-live="polite"></p>
+        </div>
 
-          <div id="output" class="mt-6" hidden aria-live="polite">
+        <!-- Right: results -->
+        <div class="result-panel">
+
+          <div id="output" hidden aria-live="polite">
+
+            <!-- Hero: days since -->
+            <div class="days-hero">
+              <div class="hero-number-row">
+                <span id="daysValue">0</span>
+                <span id="daysPill" class="pill pill-good">0 days</span>
+              </div>
+              <p id="parsedValue" class="muted" style="font-family:'Fragment Mono',monospace;font-size:0.75rem;margin:0.65rem 0 0">Parsed as</p>
+            </div>
+
+            <!-- Supply decision banner -->
+            <div id="decisionCard" class="decision-tone-warn transition-colors">
+              <span id="flagPill" class="pill pill-warn">Add tablets/day to judge supply</span>
+              <p id="canSupply">Add tablets/day to calculate "can supply on" date.</p>
+              <p id="burnRate" hidden></p>
+            </div>
+
+            <!-- Result grid: script checker + med metrics + details -->
             <div
               id="resultGrid"
-              class="result-grid grid auto-rows-fr items-stretch gap-3 sm:grid-cols-2"
+              class="result-grid grid auto-rows-fr items-stretch gap-0 sm:grid-cols-2 single-card"
             >
-              <div class="result-card">
-                <p class="label">Days since</p>
-                <div class="mt-3 flex items-end justify-between gap-3">
-                  <span id="daysValue" class="text-4xl font-semibold">0</span>
-                  <span id="daysPill" class="pill pill-good">0 days</span>
-                </div>
-                <p id="parsedValue" class="muted mt-3 text-sm">Parsed as</p>
-              </div>
-
-              <div id="decisionCard" class="result-card decision-tone-warn transition-colors">
-                <p class="label">Supply decision</p>
-                <div class="mt-3 flex flex-wrap items-center gap-2">
-                  <span id="flagPill" class="pill pill-warn">Add tablets/day to judge supply</span>
-                </div>
-                <p id="canSupply" class="muted mt-3 text-sm">
-                  Add tablets/day to calculate "can supply on" date.
-                </p>
-                <p id="burnRate" class="muted mt-2 text-xs" hidden></p>
-              </div>
 
               <div id="scriptCheckerSection" class="contents" hidden>
                 <div id="standardScriptCard" class="result-card">
-                  <p class="label">Script date checker — Standard (12 months)</p>
-                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <p class="label">Standard script — 12 months</p>
+                  <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">
                     <span id="standardStatusPill" class="pill pill-good">Valid</span>
                   </div>
-                  <p id="standardExpiryText" class="muted mt-3 text-sm"></p>
+                  <p id="standardExpiryText" class="muted" style="margin-top:0.75rem;font-size:0.82rem"></p>
                 </div>
                 <div id="s8ScriptCard" class="result-card">
-                  <p class="label">Script date checker — S8 (6 months)</p>
-                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <p class="label">S8 script — 6 months</p>
+                  <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">
                     <span id="s8StatusPill" class="pill pill-good">Valid</span>
                   </div>
-                  <p id="s8ExpiryText" class="muted mt-3 text-sm"></p>
+                  <p id="s8ExpiryText" class="muted" style="margin-top:0.75rem;font-size:0.82rem"></p>
                 </div>
               </div>
 
               <div id="medSection" class="contents" hidden>
                 <div class="result-card">
                   <p class="label">Days remaining</p>
-                  <div class="mt-3 flex items-end justify-between gap-3">
-                    <span id="daysLeftValue" class="text-4xl font-semibold">0</span>
+                  <div style="margin-top:0.75rem;display:flex;align-items:flex-end;justify-content:space-between;gap:0.75rem">
+                    <span id="daysLeftValue" class="text-4xl">0</span>
                     <span id="duePill" class="pill pill-good">Not due yet</span>
                   </div>
-                  <p id="runoutValue" class="muted mt-3 text-sm">Run-out date:</p>
+                  <p id="runoutValue" class="muted" style="margin-top:0.75rem;font-size:0.82rem">Run-out date:</p>
                 </div>
                 <div class="result-card">
                   <p class="label">Supply gauge</p>
-                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem">
                     <span id="supplyPill" class="pill pill-good">~0 days supply</span>
                     <span id="percentPill" class="pill pill-warn">0% remaining</span>
                   </div>
                   <div class="progress-track">
-                    <div id="percentBar" class="progress-fill" style="width: 0%"></div>
+                    <div id="percentBar" class="progress-fill" style="width:0%"></div>
                   </div>
                 </div>
               </div>
 
-              <div id="gaugeSection" class="result-card sm:col-span-2" hidden>
-                <p class="label">Estimate details</p>
-                <ul id="medDetails" class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200"></ul>
-              </div>
             </div>
-          </div>
-        </section>
 
-        <!-- History Timeline -->
-        <section class="card reveal reveal-delay-2">
-          <div>
-            <p class="label">Optional — but powerful</p>
-            <h2 class="mt-0.5 text-2xl font-bold sm:text-3xl">Dispense history timeline</h2>
-            <p class="muted mt-2 text-sm leading-relaxed">
-              Paste multiple dispense dates to see the gaps and a visual timeline. Add quantity + tablets/day to highlight early vs OK intervals.
-            </p>
+            <!-- Estimate details (full span) -->
+            <div id="gaugeSection" hidden>
+              <p class="label">Estimate details</p>
+              <ul id="medDetails" class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200" style="padding-left:0;list-style:none"></ul>
+            </div>
+
           </div>
 
-          <div class="mt-5 space-y-3">
-            <label class="space-y-1.5 text-sm" for="historyDates">
-              <span class="label">Dispense dates</span>
-              <textarea
-                id="historyDates"
-                class="input min-h-[120px]"
-                placeholder="e.g. 05/01/26, 04/12/25, 05/11/25"
-              ></textarea>
-              <span class="muted text-xs">Tip: Ctrl/Cmd + Enter to analyze.</span>
+          <div class="empty-prompt" aria-hidden="true">
+            type a date, press calculate
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── HISTORY TIMELINE ────────────────────────────────── -->
+      <section class="reveal reveal-delay-2" aria-label="Dispense history timeline">
+
+        <div class="section-header">
+          <span class="section-num">02</span>
+          <h2>Dispense history</h2>
+          <p>Paste multiple dates to see gaps and a timeline. Add quantity + tablets/day to flag early vs OK intervals.</p>
+        </div>
+
+        <div class="timeline-body">
+          <label class="field" for="historyDates">
+            <span class="label">Dispense dates</span>
+            <textarea
+              id="historyDates"
+              class="input min-h-[120px]"
+              placeholder="e.g. 05/01/26, 04/12/25, 05/11/25"
+            ></textarea>
+            <span class="hint" style="margin-top:0.35rem">Ctrl/Cmd + Enter to analyze</span>
+          </label>
+
+          <div class="timeline-inputs">
+            <label class="field" for="freqQty">
+              <span class="label">Quantity per dispense</span>
+              <input id="freqQty" class="input" type="number" min="0" step="1" placeholder="e.g. 28" />
             </label>
-
-            <div class="grid gap-3 sm:grid-cols-2">
-              <label class="space-y-1.5 text-sm" for="freqQty">
-                <span class="label">Quantity per dispense</span>
-                <input
-                  id="freqQty"
-                  class="input"
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="e.g. 28"
-                />
-              </label>
-              <label class="space-y-1.5 text-sm" for="freqPerDay">
-                <span class="label">Tablets per day</span>
-                <input
-                  id="freqPerDay"
-                  class="input"
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  placeholder="e.g. 2"
-                />
-              </label>
-              <label class="space-y-1.5 text-sm" for="freqBuffer">
-                <span class="label">Early buffer (days)</span>
-                <input
-                  id="freqBuffer"
-                  class="input"
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="9"
-                />
-              </label>
-              <label class="check-label" for="freqAsOfToday">
-                <input id="freqAsOfToday" type="checkbox" checked />
-                <span>Project balance to today</span>
-              </label>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-3">
-              <button id="analyze" class="btn" type="button">Analyze history</button>
-              <p id="freqStatus" class="muted text-sm" role="status" aria-live="polite"></p>
-            </div>
+            <label class="field" for="freqPerDay">
+              <span class="label">Tablets per day</span>
+              <input id="freqPerDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
+            </label>
+            <label class="field" for="freqBuffer">
+              <span class="label">Early buffer (days)</span>
+              <input id="freqBuffer" class="input" type="number" min="0" step="1" placeholder="9" />
+            </label>
+            <label class="check-label" for="freqAsOfToday">
+              <input id="freqAsOfToday" type="checkbox" checked />
+              <span>Project balance to today</span>
+            </label>
           </div>
 
-          <div id="freqTimeline" class="mt-6" hidden></div>
-          <div id="freqOutput" class="mt-6 space-y-3" hidden aria-live="polite"></div>
-          <p id="intervalsText" class="muted mt-4 text-xs"></p>
-        </section>
-      </main>
-
-      <footer class="space-y-5 text-xs" style="color: var(--muted)">
-        <details class="card">
-          <summary class="cursor-pointer text-sm font-semibold" style="color: var(--fg)">
-            Set up a browser address bar shortcut
-          </summary>
-          <div class="mt-4 space-y-3 text-sm" style="color: var(--fg)">
-            <p class="muted">
-              After setup, type something like:
-              <span class="pill pill-good">ds 25/06 60 2 9</span>
-            </p>
-            <ol class="list-decimal space-y-2 pl-5">
-              <li>Open <b>Chrome/Edge Settings</b> → <b>Search engine</b> → <b>Manage search engines</b>.</li>
-              <li>Click <b>Add</b>.</li>
-              <li>Name: <b>Days Since</b></li>
-              <li>Shortcut/Keyword: <b>ds</b></li>
-              <li>URL: <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code></li>
-            </ol>
-            <div class="divider"></div>
-            <div class="space-y-2">
-              <p class="label">Examples</p>
-              <ul class="list-disc space-y-1 pl-5">
-                <li><b>Basic:</b> <code>ds 25/06</code> (or <code>ds 2506</code>)</li>
-                <li><b>With meds:</b> <code>ds 25/06 60 2</code> (amount, per day)</li>
-                <li><b>With buffer:</b> <code>ds 25/06 60 2 9</code> (buffer days)</li>
-              </ul>
-            </div>
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <button id="analyze" class="analyze-btn" type="button">Analyze →</button>
+            <p id="freqStatus" class="muted" style="font-size:0.78rem;margin:0" role="status" aria-live="polite"></p>
           </div>
-        </details>
 
-        <p>
-          Other tools:
-          <a
-            style="color: var(--accent)"
-            href="https://itstongy.github.io/xSoneTaperHandoutBuilder/"
-            target="_blank"
-            rel="noreferrer"
-          >xSone Taper Handout Builder</a>
-        </p>
+          <div id="freqTimeline" hidden></div>
+          <div id="freqOutput" class="space-y-3" hidden aria-live="polite"></div>
+          <p id="intervalsText" class="muted" style="font-size:0.72rem;font-family:'Fragment Mono',monospace"></p>
+        </div>
 
-        <p>100% client-side. No data is stored or transmitted. Shareable URLs only include the fields you enter.</p>
-      </footer>
-    </div>
+      </section>
+
+    </main>
+
+    <!-- ── FOOTER ──────────────────────────────────────────── -->
+    <footer class="site-footer">
+      <details class="footer-details">
+        <summary>Set up a browser address bar shortcut</summary>
+        <div class="footer-detail-body">
+          <p>After setup, type something like: <span class="pill pill-good">ds 25/06 60 2 9</span></p>
+          <ol style="padding-left:1.25rem;margin:0;line-height:1.8">
+            <li>Open <b>Chrome/Edge Settings → Search engine → Manage search engines</b></li>
+            <li>Click <b>Add</b></li>
+            <li>Name: <b>Days Since</b> &nbsp;·&nbsp; Shortcut: <b>ds</b></li>
+            <li>URL: <code style="font-family:'Fragment Mono',monospace;font-size:0.78rem">https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code></li>
+          </ol>
+          <div class="divider"></div>
+          <div>
+            <span class="label" style="margin-bottom:0.5rem">Examples</span>
+            <ul style="padding-left:1.25rem;margin:0;line-height:1.8;font-family:'Fragment Mono',monospace;font-size:0.78rem">
+              <li>ds 25/06</li>
+              <li>ds 25/06 60 2</li>
+              <li>ds 25/06 60 2 9</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+
+      <p>
+        Other tools:
+        <a style="color:var(--accent)" href="https://itstongy.github.io/xSoneTaperHandoutBuilder/" target="_blank" rel="noreferrer">xSone Taper Handout Builder</a>
+      </p>
+
+      <p>100% client-side. No data stored or transmitted.</p>
+    </footer>
 
     <script type="module" src="/src/main.ts"></script>
   </body>
