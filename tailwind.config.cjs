@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  content: ['./index.html', './1/index.html', './2/index.html', './3/index.html', './src/**/*.{ts,tsx,css}'],
   safelist: [
     // toggled dynamically in src/main.ts for decision card tinting
     'border-emerald-300/70',
