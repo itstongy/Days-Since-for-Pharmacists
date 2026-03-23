@@ -4,7 +4,9 @@ Fast, simple, and private. **Days Since for Pharmacists** is a lightweight web t
 
 **Try it now →** https://itstongy.github.io/Days-Since-for-Pharmacists/
 
-![Main mode screenshot](assets/DaysSinceMainMode.png)
+| Light | Dark |
+|-------|------|
+| ![Main mode – light](assets/DaysSinceMainMode.png) | ![Main mode – dark](assets/DaysSinceMainMode_dark.png) |
 
 ## Why pharmacists use it
 
@@ -26,7 +28,9 @@ Fast, simple, and private. **Days Since for Pharmacists** is a lightweight web t
 
 Open **“Dispense history timeline”** and paste dispense dates.
 
-![Timeline mode screenshot](assets/daySinceTimeline.png)
+| Light | Dark |
+|-------|------|
+| ![Timeline – light](assets/daySinceTimeline.png) | ![Timeline – dark](assets/daySinceTimeline_dark.png) |
 
 ### Inputs
 
