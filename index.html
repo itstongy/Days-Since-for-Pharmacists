@@ -8,29 +8,26 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
   </head>
-  <body class="text-slate-950 dark:text-slate-100">
-    <div class="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-4 pb-16 pt-10">
+  <body>
+    <div class="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 pb-16 pt-8">
+
       <header class="card card-spotlight reveal">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div class="flex min-w-0 flex-1 items-center gap-4">
-            <div
-              class="grid h-14 w-14 place-items-center rounded-2xl bg-slate-900 text-2xl text-white shadow-lg dark:bg-slate-100 dark:text-slate-900"
-            >
-              💊
-            </div>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <div class="flex min-w-0 flex-1 items-start gap-4">
+            <div class="rx-badge" aria-hidden="true">Rx</div>
             <div class="min-w-0">
               <p class="label">Pharmacy utility</p>
-              <h1 class="text-2xl font-semibold sm:text-3xl">Days Since for Pharmacists</h1>
-              <p class="muted mt-2 max-w-xl text-sm">
+              <h1 class="mt-0.5 text-3xl font-bold leading-tight sm:text-4xl">Days Since</h1>
+              <p class="muted mt-2 max-w-lg text-sm leading-relaxed">
                 Quick dispense checks, supply estimates, and history analysis — all offline.
               </p>
             </div>
           </div>
-          <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div class="flex w-full flex-shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:pt-1">
             <button
               id="themeToggle"
               class="btn-secondary w-full sm:w-auto"
@@ -44,21 +41,22 @@
         </div>
       </header>
 
-      <main class="space-y-6">
+      <main class="space-y-5">
+
+        <!-- Primary Calculator -->
         <section class="card reveal reveal-delay-1">
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p class="label">Primary calculator</p>
-              <h2 class="text-xl font-semibold">Days since last dispense</h2>
-              <p class="muted mt-2 text-sm">
-                Enter the last dispense date. Optional tablet amount + daily rate unlock supply
-                estimates and early/OK logic.
+              <h2 class="mt-0.5 text-2xl font-bold sm:text-3xl">Days since last dispense</h2>
+              <p class="muted mt-2 text-sm leading-relaxed">
+                Enter the last dispense date. Tablet amount + daily rate unlock supply estimates and early/OK logic.
               </p>
             </div>
           </div>
 
-          <div class="mt-6 grid gap-4 sm:grid-cols-2">
-            <label class="space-y-2 text-sm" for="date">
+          <div class="mt-5 grid gap-3 sm:grid-cols-2">
+            <label class="space-y-1.5 text-sm" for="date">
               <span class="label">Dispense date</span>
               <input
                 id="date"
@@ -73,7 +71,7 @@
                 Accepts DD/MM, DD/MM/YY, DD/MM/YYYY, or compact DDMM(YY).
               </span>
             </label>
-            <label class="space-y-2 text-sm" for="amount">
+            <label class="space-y-1.5 text-sm" for="amount">
               <span class="label">Tablets supplied</span>
               <input
                 id="amount"
@@ -84,7 +82,7 @@
                 placeholder="e.g. 60"
               />
             </label>
-            <label class="space-y-2 text-sm" for="perDay">
+            <label class="space-y-1.5 text-sm" for="perDay">
               <span class="label">Tablets per day</span>
               <input
                 id="perDay"
@@ -95,21 +93,21 @@
                 placeholder="e.g. 2"
               />
             </label>
-            <label class="space-y-2 text-sm" for="buffer">
+            <label class="space-y-1.5 text-sm" for="buffer">
               <span class="label">Early supply buffer (days)</span>
               <input id="buffer" class="input" type="number" min="0" step="1" placeholder="9" />
             </label>
           </div>
 
-          <div class="mt-6 flex flex-wrap gap-3">
+          <div class="mt-5 flex flex-wrap items-center gap-3">
             <button id="calc" class="btn" type="button">Calculate</button>
             <p id="status" class="muted text-sm" role="status" aria-live="polite"></p>
           </div>
 
-          <div id="output" class="mt-8" hidden aria-live="polite">
+          <div id="output" class="mt-6" hidden aria-live="polite">
             <div
               id="resultGrid"
-              class="result-grid grid auto-rows-fr items-stretch gap-4 sm:grid-cols-2"
+              class="result-grid grid auto-rows-fr items-stretch gap-3 sm:grid-cols-2"
             >
               <div class="result-card">
                 <p class="label">Days since</p>
@@ -126,7 +124,7 @@
                   <span id="flagPill" class="pill pill-warn">Add tablets/day to judge supply</span>
                 </div>
                 <p id="canSupply" class="muted mt-3 text-sm">
-                  Add tablets/day to calculate “can supply on” date.
+                  Add tablets/day to calculate "can supply on" date.
                 </p>
                 <p id="burnRate" class="muted mt-2 text-xs" hidden></p>
               </div>
@@ -163,52 +161,43 @@
                     <span id="supplyPill" class="pill pill-good">~0 days supply</span>
                     <span id="percentPill" class="pill pill-warn">0% remaining</span>
                   </div>
-                  <div
-                    class="mt-4 h-3 overflow-hidden rounded-full bg-slate-200/70 dark:bg-slate-800"
-                  >
-                    <div
-                      id="percentBar"
-                      class="h-full rounded-full bg-slate-900 dark:bg-slate-100"
-                      style="width: 0%"
-                    ></div>
+                  <div class="progress-track">
+                    <div id="percentBar" class="progress-fill" style="width: 0%"></div>
                   </div>
                 </div>
               </div>
 
               <div id="gaugeSection" class="result-card sm:col-span-2" hidden>
                 <p class="label">Estimate details</p>
-                <ul
-                  id="medDetails"
-                  class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200"
-                ></ul>
+                <ul id="medDetails" class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-200"></ul>
               </div>
             </div>
           </div>
         </section>
 
+        <!-- History Timeline -->
         <section class="card reveal reveal-delay-2">
           <div>
-            <p class="label">Optional (but powerful)</p>
-            <h2 class="text-xl font-semibold">Dispense history timeline</h2>
-            <p class="muted mt-2 text-sm">
-              Paste multiple dispense dates to see the gaps and a big visual timeline. Add quantity
-              + tablets/day to highlight early vs OK intervals.
+            <p class="label">Optional — but powerful</p>
+            <h2 class="mt-0.5 text-2xl font-bold sm:text-3xl">Dispense history timeline</h2>
+            <p class="muted mt-2 text-sm leading-relaxed">
+              Paste multiple dispense dates to see the gaps and a visual timeline. Add quantity + tablets/day to highlight early vs OK intervals.
             </p>
           </div>
 
-          <div class="mt-6 space-y-4">
-            <label class="space-y-2 text-sm" for="historyDates">
+          <div class="mt-5 space-y-3">
+            <label class="space-y-1.5 text-sm" for="historyDates">
               <span class="label">Dispense dates</span>
               <textarea
                 id="historyDates"
                 class="input min-h-[120px]"
                 placeholder="e.g. 05/01/26, 04/12/25, 05/11/25"
               ></textarea>
-              <span class="muted text-xs">Tip: Use Ctrl/Cmd + Enter to analyze.</span>
+              <span class="muted text-xs">Tip: Ctrl/Cmd + Enter to analyze.</span>
             </label>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <label class="space-y-2 text-sm" for="freqQty">
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="space-y-1.5 text-sm" for="freqQty">
                 <span class="label">Quantity per dispense</span>
                 <input
                   id="freqQty"
@@ -219,7 +208,7 @@
                   placeholder="e.g. 28"
                 />
               </label>
-              <label class="space-y-2 text-sm" for="freqPerDay">
+              <label class="space-y-1.5 text-sm" for="freqPerDay">
                 <span class="label">Tablets per day</span>
                 <input
                   id="freqPerDay"
@@ -230,7 +219,7 @@
                   placeholder="e.g. 2"
                 />
               </label>
-              <label class="space-y-2 text-sm" for="freqBuffer">
+              <label class="space-y-1.5 text-sm" for="freqBuffer">
                 <span class="label">Early buffer (days)</span>
                 <input
                   id="freqBuffer"
@@ -241,10 +230,8 @@
                   placeholder="9"
                 />
               </label>
-              <label
-                class="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-3 text-sm shadow-sm dark:border-slate-700/60 dark:bg-slate-950/50"
-              >
-                <input id="freqAsOfToday" type="checkbox" class="h-4 w-4" checked />
+              <label class="check-label" for="freqAsOfToday">
+                <input id="freqAsOfToday" type="checkbox" checked />
                 <span>Project balance to today</span>
               </label>
             </div>
@@ -261,29 +248,22 @@
         </section>
       </main>
 
-      <footer class="space-y-6 text-xs text-slate-500 dark:text-slate-400">
+      <footer class="space-y-5 text-xs" style="color: var(--muted)">
         <details class="card">
-          <summary class="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
-            Want to use this faster? Set up a browser shortcut (address bar command)
+          <summary class="cursor-pointer text-sm font-semibold" style="color: var(--fg)">
+            Set up a browser address bar shortcut
           </summary>
-          <div class="mt-4 space-y-3 text-sm text-slate-700 dark:text-slate-200">
+          <div class="mt-4 space-y-3 text-sm" style="color: var(--fg)">
             <p class="muted">
-              You can make your address bar work like a command. After setup you can type something
-              like:
+              After setup, type something like:
               <span class="pill pill-good">ds 25/06 60 2 9</span>
             </p>
             <ol class="list-decimal space-y-2 pl-5">
-              <li>
-                Open <b>Chrome/Edge Settings</b> → <b>Search engine</b> →
-                <b>Manage search engines</b>.
-              </li>
+              <li>Open <b>Chrome/Edge Settings</b> → <b>Search engine</b> → <b>Manage search engines</b>.</li>
               <li>Click <b>Add</b>.</li>
               <li>Name: <b>Days Since</b></li>
               <li>Shortcut/Keyword: <b>ds</b></li>
-              <li>
-                URL:
-                <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code>
-              </li>
+              <li>URL: <code>https://itstongy.github.io/Days-Since-for-Pharmacists/?s=%s</code></li>
             </ol>
             <div class="divider"></div>
             <div class="space-y-2">
@@ -291,9 +271,7 @@
               <ul class="list-disc space-y-1 pl-5">
                 <li><b>Basic:</b> <code>ds 25/06</code> (or <code>ds 2506</code>)</li>
                 <li><b>With meds:</b> <code>ds 25/06 60 2</code> (amount, per day)</li>
-                <li>
-                  <b>With buffer:</b> <code>ds 25/06 60 2 9</code> (buffer days)
-                </li>
+                <li><b>With buffer:</b> <code>ds 25/06 60 2 9</code> (buffer days)</li>
               </ul>
             </div>
           </div>
@@ -302,19 +280,14 @@
         <p>
           Other tools:
           <a
-            class="underline"
+            style="color: var(--accent)"
             href="https://itstongy.github.io/xSoneTaperHandoutBuilder/"
             target="_blank"
             rel="noreferrer"
-          >
-            xSone Taper Handout Builder
-          </a>
+          >xSone Taper Handout Builder</a>
         </p>
 
-        <p>
-          100% client-side. No data is stored or transmitted. Shareable URLs only include the fields
-          you enter.
-        </p>
+        <p>100% client-side. No data is stored or transmitted. Shareable URLs only include the fields you enter.</p>
       </footer>
     </div>
 
