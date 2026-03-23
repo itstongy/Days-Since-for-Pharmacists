@@ -17,7 +17,7 @@
     <!-- ── TOP BAR ─────────────────────────────────────────── -->
     <nav class="topbar reveal">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true">Rx</span>
+        <span class="brand-mark" aria-hidden="true">℞</span>
         <span class="brand-name">Days Since</span>
         <span class="brand-sub">Pharmacy Utility</span>
       </div>
@@ -37,7 +37,7 @@
         <!-- Left: inputs -->
         <div class="input-panel">
           <h2>Last dispense</h2>
-          <p class="panel-desc">Date + optional supply info.</p>
+          <p class="panel-desc">Enter date and optional supply details for a quick supply check.</p>
 
           <div class="fields">
             <label class="field" for="date">
@@ -60,7 +60,7 @@
             </label>
 
             <label class="field" for="perDay">
-              <span class="label">Tablets per day</span>
+              <span class="label">Tablets / day</span>
               <input id="perDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
             </label>
 
@@ -157,7 +157,7 @@
       </section>
 
       <!-- ── HISTORY TIMELINE ────────────────────────────────── -->
-      <section class="reveal reveal-delay-2" aria-label="Dispensing gaps analysis">
+      <section class="gaps-section reveal reveal-delay-2" aria-label="Dispensing gaps analysis">
 
         <div class="section-header">
           <h2>Dispensing Gaps</h2>
@@ -177,11 +177,11 @@
 
           <div class="timeline-inputs">
             <label class="field" for="freqQty">
-              <span class="label">Quantity per dispense</span>
+              <span class="label">Qty per dispense</span>
               <input id="freqQty" class="input" type="number" min="0" step="1" placeholder="e.g. 28" />
             </label>
             <label class="field" for="freqPerDay">
-              <span class="label">Tablets per day</span>
+              <span class="label">Tablets / day</span>
               <input id="freqPerDay" class="input" type="number" min="0" step="0.5" placeholder="e.g. 2" />
             </label>
             <label class="field" for="freqBuffer">
@@ -237,7 +237,7 @@
         <a style="color:var(--accent)" href="https://itstongy.github.io/xSoneTaperHandoutBuilder/" target="_blank" rel="noreferrer">xSone Taper Handout Builder</a>
       </p>
 
-      <p>100% client-side. No data stored or transmitted.</p>
+      <p class="footer-privacy">100% client-side. No data stored or transmitted.</p>
     </footer>
 
     <script type="module" src="/src/main.ts"></script>
