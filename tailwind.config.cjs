@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  content: ['./index.html', './src/**/*.{ts,tsx,css}'],
   safelist: [
     // toggled dynamically in src/main.ts for decision card tinting
     'border-emerald-300/70',
@@ -20,8 +20,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        sans: ['"Onest"', 'system-ui', 'sans-serif'],
+        display: ['"Syne"', 'system-ui', 'sans-serif'],
+        mono: ['"Fragment Mono"', 'monospace'],
       },
       boxShadow: {
         glow: '0 14px 40px rgba(15, 23, 42, 0.15)',
